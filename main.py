@@ -28,9 +28,14 @@ myGui.GuiFoodData(DBItems)
 #    1st step: Entering by name, time of meal is noon always
 #    Later: add time of meal, search while typing, allow inserting quantities in free text, default unit is gram
 #           add additional multiple choice of names to the same item
-
-
+# Daily DB
+#   Daily quantity until now per nutrition type
+#
+# Daily Recommended
+#   Gram/KCAL per nutrition type
 ### Build GUI to manage the daily items
+# Date of day in ISR
+
 
 print('here')
 

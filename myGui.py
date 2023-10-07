@@ -60,10 +60,8 @@ def GuiFoodData(DBItems):
                selItemNutritionValues = DBItems[selItem][parsingEngine.__nutritionValues__]
                for nutName in selItemNutritionValues:
                    nutElem = selItemNutritionValues[nutName]
-                   # TODO: Convert to display units
                    # TODO: change 'nutValue' and 'nutUnits' to constants
                    # TODO: Add selection box for multiple items
-                   print(nutName)
                    if (nutName!='כפיות סוככפיות סוכר'):
                       convertedValue = HandleConversion.convertUnitFromStandard([nutElem['nutValue'], nutElem['nutUnits']],
                                                                                 HandleConversion.__dictNutNameToUnitsForDisplay__[nutName])
@@ -81,6 +79,7 @@ def GuiFoodData(DBItems):
        if '+CLICKED+' in event:
           psg.popup("You clicked row:{} Column: {}".format(event[2][0], event[2][1]))
     window.close()
+
 
 
 def showTable(toprow,rows):
