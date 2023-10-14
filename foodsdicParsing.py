@@ -5,32 +5,21 @@ from bs4 import BeautifulSoup
 #from myGui import showTable
 import pandas as pd
 
+### https://requests-cache.readthedocs.io/en/stable/
+### https://www.reddit.com/r/Python/comments/2eoeji/how_to_turn_a_beautifulsoup_object_into_a_string/
+### https://pypi.org/project/chardet/
 __flagChachingSite__ = True
+
+__nutDefaultUnits__ = dict()
+
+__ignoreNut__ = 'כפיות סוכר'
 
 def ParseAndFormat(nameOrUrl):
     if (str.find(nameOrUrl,'//')): # URL
-        parsedOrgFormatItem = ParseUrl(nameOrUrl)
+        parsedItem = ParseUrl(nameOrUrl)
     else:
         raise Exception('not implemented')
 
-    parsedItem = itemChangeFormat(parsedOrgFormatItem)
-
-    return parsedItem
-
-def itemChangeFormat(parsedOrgFormatItem):
-    # Debug
-    #HandleConversion.debugPrintUniqueAttrInDataFrame(parsedOrgFormatItem, 'nutUnits')
-
-    parsedItem = None
-    for nutName in parsedOrgFormatItem:
-        convertedValue = HandleConversion.convertUnitToStandard(parsedOrgFormatItem[nutName]['nutValue'], parsedOrgFormatItem[nutName]['nutUnits'])
-        convertedNutName = HandleConversion.convertNutName(nutName)
-        if parsedItem is None:
-            parsedItem = pd.DataFrame({convertedNutName: convertedValue}, index=['nutValue', 'nutUnits'])
-        else:
-            parsedItem.insert(0, convertedNutName, convertedValue)
-
-    #
     return parsedItem
 
 def ParseUrl(url):
@@ -44,11 +33,18 @@ def ParseUrl(url):
     textToParse = r.text
     soup = BeautifulSoup(textToParse, 'html.parser')
     table = soup.find('table', class_='nv-table')
-    nutValueTableRows = None
+    nutValueTableRows = dict()
     for nutData in table.find_all('tr'):
         nutDataEnt = nutData.find_all('td')
         if (len(nutDataEnt) > 1):
             nutName = nutDataEnt[0].text
+            EngNutName = ''
+            for contentSection in nutDataEnt[0].contents:
+                if (contentSection.name == 'a'):
+                    linkEng = contentSection.attrs['href']
+                    EngNutName = linkEng[linkEng.rfind('/')+1:linkEng.rfind('.')]
+            HandleConversion.__dictEngNutNameToHebNutName__[EngNutName] = nutName
+            HandleConversion.__dictHebNutNameToEngNutName__[nutName] = EngNutName
             # m = re.search(r'\((.*?)\)', nutName)
             nutUnits = nutName[nutName.find("(") + 1:nutName.find(")")]
             if nutName.find("("):
@@ -58,22 +54,35 @@ def ParseUrl(url):
             nutValue = nutDataEnt[1].get('data-start')
             if (nutValue is None):
                 nutValue = 0
-            # print("{} = {}, {}".format(nutNameWOUnits,nutValue,nutNameUnits))
-            if nutValueTableRows is None:
-                nutValueTableRows = pd.DataFrame({nutNameWOUnits: [nutValue, nutUnits]}, index=['nutValue', 'nutUnits'])
-            else:
-                nutValueTableRows.insert(0,nutNameWOUnits,[nutValue, nutUnits])
 
+            if (nutNameWOUnits.find(__ignoreNut__)>=0):
+                continue
+
+            # print("{} ({}) = {}, {}".format(nutNameWOUnits,EngNutName,nutValue,nutUnits))
             ## Generate Default Display Units Dictionary
             #if (HandleConversion.__nutUnitsConversionToDisplay__[HandleConversion.__tspn__]!=nutUnits):
             #    print("     '{}' : '{}',".format(nutNameWOUnits,nutUnits))
 
+            [convertedValue, convertedUnit] = HandleConversion.convertUnitToStandard(nutValue, nutUnits)
+
+            # TODO: Remove
+            #convertedNutName = HandleConversion.convertNutName(nutNameWOUnits)
+
+            # Check units are not changing
+            if (__nutDefaultUnits__.__contains__(EngNutName)):
+                if (__nutDefaultUnits__[EngNutName] != convertedUnit):
+                    raise Exception('unit has changed during read')
+            else:
+                __nutDefaultUnits__[EngNutName] = convertedUnit
+
+            nutValueTableRows[EngNutName] = convertedValue
         else:
            for line in nutData.find_all('th'):
                 if line.get('id')=='sizeNameTd':
                     if not line.text.find('100 גרם'):
                         print(line)
                         raise Exception('error in parsing, size is not 100 grams!')
+
     # showTable(['Name', 'Value', 'Units'],nutValueTableRows)
     return nutValueTableRows
 

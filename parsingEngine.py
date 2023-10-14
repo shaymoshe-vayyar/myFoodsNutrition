@@ -1,15 +1,10 @@
 import foodsdicParsing
-import pandas as pd
+import DBClasses
 
-__nutritionValues__ = 'nutritionValues'
+def readItems(itemsUrlParsingDB):
+    DBItemsNut = DBClasses.DBItemsNutClass()
+    for itemIdx in range(len(itemsUrlParsingDB.index)):
+        tableNut = foodsdicParsing.ParseAndFormat(itemsUrlParsingDB.loc[itemIdx]['FoodsDBNameOrUrl'])
+        DBItemsNut.AddNutsListPerItem(itemsUrlParsingDB.loc[itemIdx]['FoodName'], tableNut)
 
-def readItems(DBitemsToRead):
-    DBItems = None
-    for itemNameToRead in DBitemsToRead:
-        item = foodsdicParsing.ParseAndFormat(DBitemsToRead[itemNameToRead]['FoodsDBNameOrUrl'])
-        if DBItems is None:
-            DBItems = pd.DataFrame({itemNameToRead: [item]}, index=[__nutritionValues__])
-        else:
-            DBItems.insert(0,itemNameToRead,[item])
-
-    return DBItems
+    return DBItemsNut

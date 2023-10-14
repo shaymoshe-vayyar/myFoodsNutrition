@@ -1,20 +1,21 @@
 import myGui
 import databaseHandler
+import parsingEngine
 
-if False:
+if True:
     ###
     ## Read List of items to retrieve and from where
     #   1st step: only from foodsdictionary, only URL option
     #   Later: add name search, add USDA site
-    DBitemsToRead = databaseHandler.LoadItemsListToRead()
+    itemsUrlParsingDB = databaseHandler.LoadItemsListToRead()
 
     ## Go over the list, read each item
     #   Read, and translate the units and names to global
     #   Later: Add the items to existing DB
-    DBItems = parsingEngine.readItems(DBitemsToRead)
+    DBItemsNut = parsingEngine.readItems(itemsUrlParsingDB)
 
     ## Save Database
-    databaseHandler.StoreItemsNutDatabase(DBItems)
+    databaseHandler.StoreItemsNutDatabase(DBItemsNut)
 
 else:
     ## Load Database
@@ -22,7 +23,7 @@ else:
 
 
 ### Build GUI to search on DB
-myGui.GuiFoodData(DBItems)
+#myGui.GuiFoodData(DBItems)
 
 ### Build the daily Database
 #    1st step: Entering by name, time of meal is noon always
@@ -32,10 +33,11 @@ myGui.GuiFoodData(DBItems)
 #   Daily quantity until now per nutrition type
 #
 # Daily Recommended
-#   Gram/KCAL per nutrition type
+#   Gram/CAL per nutrition type
 ### Build GUI to manage the daily items
 # Date of day in ISR
-
+DBDailyData = databaseHandler.LoadItemsNutDatabase()
+myGui.GuiFoodDailyManager(DBItems, DBDailyData)
 
 print('here')
 
