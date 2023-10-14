@@ -94,7 +94,7 @@
             <form>
               <div class="form-group">
                 <input type="search" dir="rtl" text-align="right" list="ListName" name="qr" id="qr" data-typecmd="1" placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()"  aria-label="Search" autocomplete="off" style='width: 100%;'  >
-                <datalist id="ListName">
+                <datalist id="ListName" dir="rtl" text-align="right">
                   <option value="מלפפון"></option>
                   <option value="עגבניה">Dry fish</option>
                   <option value="עגבנית שרי">Palm oil</option>
@@ -151,25 +151,47 @@ function updateQRSuggestions() {
         numbersInStr = dropDownText.match(/\b(\d+\.?\d?)\b/g)
         engWordsInStr = dropDownText.match(/\b[^\d\W]+\b/g)
         hebWordsInStr = dropDownText.match(/[\u0590-\u05FF]+/g)
-        console.log(/^([a-z0-9]{5,})$/.test('')); // false
-        if (hebWordsInStr.length > 0)
+        if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
         {
         console.log('------------------------------');
         console.log(hebWordsInStr.join(' ')); //
         console.log('------------------------------');
         }
-        console.log('------------------------------');
-        console.log(numbersInStr); //
-        console.log('------------------------------');
-        if (hebWordsInStr.length > 0)
+        numDesiredQuantity = 100;
+        if ((numbersInStr != null) && (numbersInStr.length>0)) {
+            if (numbersInStr.length > 1)
+            {
+                console.log('error, too many numbers');
+            }
+            else
+            {
+                numDesiredQuantity = parseInt(numbersInStr[0])
+                console.log('------------------------------');
+                console.log(numDesiredQuantity); //
+                console.log('------------------------------');
+            }
+        }
+        if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
         {
           var xmlhttp = new XMLHttpRequest();
           xmlhttp.onreadystatechange = function() {
               //console.log(this.readyState); //
               //console.log(this.status); //
               if (this.readyState == 4 && this.status == 200) {
-                  document.getElementById("ListName").innerHTML = this.responseText;
-                  console.log(this.responseText);
+                  //console.log(this.responseText);
+                  arrOptions = this.responseText.split(';')
+                  text = '';
+                  const units = 'גרם';
+                  const caloriesUnit = 'קלוריות';
+                  const toWord = 'ל';
+                  for (let i = 0; i < arrOptions.length; i++) {
+                      arrPair = arrOptions[i].split(','); // Name, Calories
+                      const name = arrPair[0]
+                      const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
+                      text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
+                  }
+                  console.log(text);
+                  document.getElementById("ListName").innerHTML = text;
               }
           };
           xmlhttp.open("GET","./phpFiles/getDataDB.php?q="+hebWordsInStr.join(' '),true);

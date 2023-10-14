@@ -1,12 +1,3 @@
-<!--https://hevodata.com/learn/xampp-mysql/-->
-<!--<!DOCTYPE html>-->
-<!--<html lang="he">-->
-<!--<head>-->
-<!--    <meta content="text/html; charset=utf-8" http-equiv="Content-Type">-->
-<!--</head>-->
-<!--<body>-->
-<!--<div id="txtHint1"><b>in php getuser...</b></div>-->
-
 <?php
 // Link to MySql DB Management: http://localhost/phpmyadmin/index.php?route=/database/structure&server=1&db=ajax_demo&table=user
 $host = 'pc';
@@ -27,6 +18,7 @@ else
 }
 
 $q = $_GET['q'].'%';
+//$q = 'מלפפון';
 
 $con = mysqli_connect($host,$username,$password);
 if (!$con) {
@@ -34,7 +26,7 @@ if (!$con) {
 }
 
 mysqli_select_db($con,$database);
-$sql="SELECT itemName FROM `db_items_nut` WHERE itemName LIKE '".$q."';";
+$sql="SELECT itemName,Calories FROM `db_items_nut` WHERE itemName LIKE '".$q."';";
 //$sql="SELECT * FROM user WHERE id = '".$q."'";
 $result = mysqli_query($con,$sql);
 
@@ -44,12 +36,9 @@ $result = mysqli_query($con,$sql);
 //}
 //echo "</tr>";
 while($row = mysqli_fetch_array($result)) {
-    echo "<option>" . $row[0] . "</option>";
+//    echo "<option>" . $row[0]."[".$row[1]."]"."</option>";
+    echo $row[0].','.$row[1].';';
 }
 
 mysqli_close($con);
 ?>
-
-<!--</body>-->
-<!---->
-<!--</html>-->
