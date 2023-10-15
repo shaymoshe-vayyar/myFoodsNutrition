@@ -37,7 +37,6 @@
 </script>
   <!-- Script -->
 
-
 </head>
 <body onload="docLoaded()" style="background-color:#dcd7d3">
 
@@ -93,12 +92,15 @@
           <div class="search-div" style="padding: 15px 0 !important;">
             <form>
               <div class="form-group">
-                <input type="search" dir="rtl" text-align="right" list="ListName" name="qr" id="qr" data-typecmd="1" placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()"  aria-label="Search" autocomplete="off" style='width: 100%;'  >
-                <datalist id="ListName" dir="rtl" text-align="right">
-                  <option value="מלפפון"></option>
-                  <option value="עגבניה">Dry fish</option>
-                  <option value="עגבנית שרי">Palm oil</option>
-                </datalist>
+                <input type="search" dir="rtl" text-align="right" name="qr" id="qr" data-typecmd="1" placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()"  aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
+
+                  <ul popover id="qrpopover" style="position:relative; inset=unset;top=40px">
+                  </ul>
+<!--                  <datalist id="ListName" dir="rtl" text-align="right">-->
+<!--                  <option value="מלפפון"></option>-->
+<!--                  <option value="עגבניה">Dry fish</option>-->
+<!--                  <option value="עגבנית שרי">Palm oil</option>-->
+<!--                </datalist>-->
                 <!--                <button type="button" class="btn control-no-focus btn-clean-search" style="display: none;"><i class="fas fa-times">&#xf00d;</i></button>-->
                 <!--                <button type="submit" class="btn control-no-focus"><i class="far fa-search">&#xf002;</i></button>-->
               </div>
@@ -145,8 +147,10 @@ function updateQRSuggestions() {
     // Get the value of the selected drop down
     var dropDownText = document.getElementById("qr").value;
     // If selected text matches 'Other', display the text field.
+
     if (dropDownText == "") {
-      return;
+        document.getElementById("qrpopover").innerHTML = '';
+        return;
       } else {
         numbersInStr = dropDownText.match(/\b(\d+\.?\d?)\b/g)
         engWordsInStr = dropDownText.match(/\b[^\d\W]+\b/g)
@@ -173,30 +177,51 @@ function updateQRSuggestions() {
         }
         if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
         {
+            //const mypopover = document.getElementById("qrpopover");
+
+            //mypopover.style.top = '100px';
           var xmlhttp = new XMLHttpRequest();
           xmlhttp.onreadystatechange = function() {
               //console.log(this.readyState); //
               //console.log(this.status); //
               if (this.readyState == 4 && this.status == 200) {
                   //console.log(this.responseText);
-                  arrOptions = this.responseText.split(';')
                   text = '';
-                  const units = 'גרם';
-                  const caloriesUnit = 'קלוריות';
-                  const toWord = 'ל';
-                  for (let i = 0; i < arrOptions.length; i++) {
-                      arrPair = arrOptions[i].split(','); // Name, Calories
-                      const name = arrPair[0]
-                      const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
-                      text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
+                  if (this.responseText.length > 1)
+                  {
+                      arrOptions = this.responseText.split(';')
+                      const units = 'גרם';
+                      const caloriesUnit = 'קלוריות';
+                      const toWord = 'ל';
+                      for (let i = 0; i < arrOptions.length; i++) {
+                          if (arrOptions[i].length > 0)
+                          {
+                              arrPair = arrOptions[i].split(','); // Name, Calories
+                              const name = arrPair[0]
+                              const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
+                               //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
+                              text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
+                          }
+                      }
+                      $('#qrpopover').show();
+                  }
+                  else
+                  {
+                      $('#qrpopover').hide();
                   }
                   console.log(text);
-                  document.getElementById("ListName").innerHTML = text;
+                  //document.getElementById("ListName").innerHTML = text;
+                  document.getElementById("qrpopover").innerHTML = text;
               }
           };
-          xmlhttp.open("GET","./phpFiles/getDataDB.php?q="+hebWordsInStr.join(' '),true);
+            //xmlhttp.open("GET","./phpFiles/getDataDB.php?q="+hebWordsInStr.join(' '),true);
+            xmlhttp.open("GET","getDataDB.php?q="+hebWordsInStr.join(' '),true);
 
           xmlhttp.send();
+        }
+        else
+        {
+            document.getElementById("qrpopover").innerHTML = '';
         }
     }
 }

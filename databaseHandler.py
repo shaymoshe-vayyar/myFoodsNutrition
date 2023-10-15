@@ -15,7 +15,7 @@ from DBClasses import *
 ### https://proclusacademy.com/blog/practical/pandas-read-write-sql-database/
 
 __host__ = 'pc';
-#__$host__ = 'web';
+#__host__ = 'web';
 
 class mySqlMng():
     def __init__(self):
@@ -25,10 +25,10 @@ class mySqlMng():
             self.__password__ = '';
             self.__database__ = 'ajax_demo';
         else:
-            self.__hostname__ = '127.0.0.1';
+            self.__hostname__ = '193.203.166.13';#'127.0.0.1';
             self.__username__ = 'u230048523_shay';
-            self.__password__ = 'MosheMoshe1';
-            self.__database__ = "tmpDatabase";
+            self.__password__ = 'MosheMoshe1!';
+            self.__database__ = "u230048523_ajax_demo";
 
         self.mydbConn = mysql.connector.connect(
             host=self.__hostname__,
