@@ -102,23 +102,3 @@ class DBItemsNutClass:
                             PrimaryKeyName=self.__itemName__,
                             ifExists = 'replace')
 
-class DBItemsNutClass:
-    __tableDailyItems__ = None
-    __tableName__ = 'db_daily_items'
-
-    def AddNutsListPerItem(self,itemName, tableNut):
-        tableNut[self.__itemName__] =   itemName
-        if self.__tableItemNutValues__ is None:
-            newItemIdx = 0
-            self.__tableItemNutValues__ = pd.DataFrame(tableNut,index=[newItemIdx])
-        else:
-            newItemIdx = len(self.__tableItemNutValues__.index)
-            self.__tableItemNutValues__.loc[newItemIdx]=tableNut
-
-    def LoadFromDB(self, dbConn):
-        self.__tableItemNutValues__ = ReadTableAsDF(dbConn, self.__tableName__)
-
-    def SaveToDB(self, dbConn):
-        CreateTableFromDF(dbConn, self.__tableItemNutValues__,
-                            self.__tableName__,
-                            ifExists = 'append')

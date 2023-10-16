@@ -34,17 +34,17 @@ if (!$con) {
 
 mysqli_select_db($con,$database);
 if ($isFull == '1') {
-    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName=='" . $q."';";
-    $result = mysqli_query($con, $sql);
-    $list = mysqli_fetch_array($result);
-    if (count($list) > 1)
-    {
-        echo 'ErrMoreThanOneItemSelected';
-    }
-    else
-    {
-        echo join(",",$list[0]);
-    }
+//    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName=='" . $q."';";
+//    $result = mysqli_query($con, $sql);
+//    $list = mysqli_fetch_array($result);
+//    if (count($list) > 1)
+//    {
+//        echo 'ErrMoreThanOneItemSelected';
+//    }
+//    else
+//    {
+//        echo join(",",$list[0]);
+//    }
 }
 else {
     $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName LIKE '" . $q . "%';";

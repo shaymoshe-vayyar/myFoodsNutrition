@@ -62,8 +62,16 @@ __ItemNameToIdx__ = dict()
 def LoadItemsListToRead():
     cols =                    ['FoodName','FoodsDBNameOrUrl']
     itemsUrlParsingDB = pd.DataFrame({
-        cols[0]           :   ['עגבניה','מלפפון'],
-        cols[1]           :   ['https://www.foodsdictionary.co.il/Products/1/%D7%A2%D7%92%D7%91%D7%A0%D7%99%D7%94','https://www.foodsdictionary.co.il/Products/1/%D7%9E%D7%9C%D7%A4%D7%A4%D7%95%D7%9F%20%D7%A2%D7%9D%20%D7%A7%D7%9C%D7%99%D7%A4%D7%94'],
+        cols[0]           :   ['עגבניה','מלפפון','חסה ערבית','צנון טרי','סלק מבושל','גזר','בצל לבן טרי','פטרוזיליה','כוסברה'],
+        cols[1]           :   ['https://www.foodsdictionary.co.il/Products/1/%D7%A2%D7%92%D7%91%D7%A0%D7%99%D7%94',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%9E%D7%9C%D7%A4%D7%A4%D7%95%D7%9F%20%D7%A2%D7%9D%20%D7%A7%D7%9C%D7%99%D7%A4%D7%94',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%97%D7%A1%D7%94%20%D7%A2%D7%A8%D7%91%D7%99%D7%AA',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%A6%D7%A0%D7%95%D7%9F%20-%20%D7%A6%D7%A0%D7%95%D7%A0%D7%99%D7%AA',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%A1%D7%9C%D7%A7%20%D7%9E%D7%91%D7%95%D7%A9%D7%9C',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%92%D7%96%D7%A8',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%91%D7%A6%D7%9C',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%A4%D7%98%D7%A8%D7%95%D7%96%D7%99%D7%9C%D7%99%D7%94',
+                               'https://www.foodsdictionary.co.il/Products/1/%D7%9B%D7%95%D7%A1%D7%91%D7%A8%D7%94'],
         # 'עגבניה'            :   [1,'https://www.foodsdictionary.co.il/Products/1/%D7%A2%D7%92%D7%91%D7%A0%D7%99%D7%94'],
         # 'מלפפון'            :   [2,'https://www.foodsdictionary.co.il/Products/1/%D7%9E%D7%9C%D7%A4%D7%A4%D7%95%D7%9F%20%D7%A2%D7%9D%20%D7%A7%D7%9C%D7%99%D7%A4%D7%94']
     },

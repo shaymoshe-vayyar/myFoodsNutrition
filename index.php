@@ -237,6 +237,8 @@ function updateQRSuggestions() {
         else
         {
             document.getElementById("qrpopover").innerHTML = '';
+            $('#qr').data('selItem','');
+            $('#qr').data('quantity',0);
         }
     }
 }
