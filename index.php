@@ -77,7 +77,7 @@
         </div>
         <script type="text/javascript">
          $(function () {
-             $('#picker').datetimepicker({viewMode: 'days', format: 'DD/MM/YYYY', useCurrent : true,
+             $('#picker').datetimepicker({viewMode: 'days', format: 'YYYY-MM-DD', useCurrent : true,
              showTodayButton : true,
              defaultDate : new Date()});
              $("#picker").on("dp.change", function (e) {
@@ -92,7 +92,9 @@
           <div class="search-div" style="padding: 15px 0 !important;">
             <form>
               <div class="form-group">
-                <input type="search" dir="rtl" text-align="right" name="qr" id="qr" data-typecmd="1" placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()"  aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
+                <input type="search" dir="rtl" text-align="right" name="qr" id="qr"
+                       placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" onsearch="qrSearchSubmitted()"
+                       aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
 
                   <ul popover id="qrpopover" style="position:relative; inset=unset;top=40px">
                   </ul>
@@ -112,8 +114,11 @@
     </div>
     <br>
     <hr>
+      <div class="row">
+          <p id="blabla"></p>
+          <button onclick="qrSearchSubmitted()"></button>
+      </div>
   </div>
-
   <footer class="w3-container w3-bottom w3-margin-top">
     <h3>Footer</h3>
   </footer>
@@ -148,6 +153,10 @@ function updateQRSuggestions() {
     var dropDownText = document.getElementById("qr").value;
     // If selected text matches 'Other', display the text field.
 
+    // document.getElementById('qr').data-fullnamesuggest = '';
+    console.log("data="+$('#qr').data('selItem'));
+    $('#qr').data('selItem','');
+    $('#qr').data('quantity',0);
     if (dropDownText == "") {
         document.getElementById("qrpopover").innerHTML = '';
         return;
@@ -169,7 +178,7 @@ function updateQRSuggestions() {
             }
             else
             {
-                numDesiredQuantity = parseInt(numbersInStr[0])
+                numDesiredQuantity = parseFloat(numbersInStr[0])
                 console.log('------------------------------');
                 console.log(numDesiredQuantity); //
                 console.log('------------------------------');
@@ -201,6 +210,12 @@ function updateQRSuggestions() {
                               const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
                                //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
                               text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
+                              if (arrOptions.length == 2) // Only one suggestion
+                              {
+                                  //console.log("data="+$('#qr').data('selItem'));
+                                  $('#qr').data('selItem',name);
+                                  $('#qr').data('quantity',numDesiredQuantity);
+                              }
                           }
                       }
                       $('#qrpopover').show();
@@ -214,8 +229,8 @@ function updateQRSuggestions() {
                   document.getElementById("qrpopover").innerHTML = text;
               }
           };
-            //xmlhttp.open("GET","./phpFiles/getDataDB.php?q="+hebWordsInStr.join(' '),true);
-            xmlhttp.open("GET","getDataDB.php?q="+hebWordsInStr.join(' '),true);
+            //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
+            xmlhttp.open("GET","findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0",true);
 
           xmlhttp.send();
         }
@@ -224,6 +239,30 @@ function updateQRSuggestions() {
             document.getElementById("qrpopover").innerHTML = '';
         }
     }
+}
+function qrSearchSubmitted() {
+    //if (e.key === 'Enter' || e.keyCode === 13) {
+        console.log('submitted');
+        itemToAdd = $('#qr').data('selItem');
+        //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
+        dateToAdd = document.getElementById("picker").value;
+        quantity = $('#qr').data('quantity');
+        mealTimeSlot = '';
+        console.log("itemToAdd=" + itemToAdd);
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            //console.log(this.readyState); //
+            //console.log(this.status); //
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText);
+                document.getElementById('blabla').textContent = this.responseText;
+            }
+        };
+        xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
+
+        xmlhttp.send();
+    //}
+
 }
 
   </script>

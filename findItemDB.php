@@ -1,10 +1,11 @@
 <?php
 // Link to MySql DB Management: http://localhost/phpmyadmin/index.php?route=/database/structure&server=1&db=ajax_demo&table=user
+// db_items_nut,
 
-$q = $_GET['q'].'%';
+$q = $_GET['q'];
 //$q = 'מלפפון';
 
-$isFull = '1'; //$_GET['isFull'];
+$isFull = $_GET['isFull'];
 
 //$host = 'pc';
 //$host = 'web';
@@ -33,25 +34,23 @@ if (!$con) {
 
 mysqli_select_db($con,$database);
 if ($isFull == '1') {
-    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName LIKE '" . $q . "';";
+    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName=='" . $q."';";
     $result = mysqli_query($con, $sql);
-
-    while ($row = mysqli_fetch_array($result)) {
-        echo $row[0] . ',' . $row[1] . ';';
+    $list = mysqli_fetch_array($result);
+    if (count($list) > 1)
+    {
+        echo 'ErrMoreThanOneItemSelected';
+    }
+    else
+    {
+        echo join(",",$list[0]);
     }
 }
 else {
-    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName LIKE '" . $q . "';";
-//$sql="SELECT * FROM user WHERE id = '".$q."'";
+    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName LIKE '" . $q . "%';";
     $result = mysqli_query($con, $sql);
 
-//echo "<tr>data: ";
-//while($row = mysqli_fetch_array($result)) {
-//    echo "<td>" . $row[0] . "</td>";
-//}
-//echo "</tr>";
     while ($row = mysqli_fetch_array($result)) {
-//    echo "<option>" . $row[0]."[".$row[1]."]"."</option>";
         echo $row[0] . ',' . $row[1] . ';';
     }
 

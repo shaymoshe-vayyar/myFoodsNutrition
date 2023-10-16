@@ -22,6 +22,7 @@ def ReadTableAsDF(mydbConn,tableName, index_col=None):
 def CreateTableFromDF(mydbConn,
                       dataFrame: pd.DataFrame,
                       tableName,
+                      PrimaryKeyName=None,
                       ifExists: Literal['fail', 'replace', 'append'] = 'fail'):
     # dataFrame.to_sql(tableName, self.mydbConn, if_exists=ifExists);
     mycursor = mydbConn.cursor()
@@ -48,6 +49,12 @@ def CreateTableFromDF(mydbConn,
             strCols = colName
     mycursor.execute("CREATE TABLE IF NOT EXISTS {table} ({strColWithTypes})".format(table=tableName,
                                                                                      strColWithTypes=strColWithTypes))
+    if (PrimaryKeyName is not None):
+        # check already exists
+        mycursor.execute("SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = 'PRIMARY KEY' AND TABLE_NAME = '{table}';".format(table=tableName))
+        myresult = mycursor.fetchall()
+        if (myresult is None) or (len(myresult)==0):
+            mycursor.execute("ALTER TABLE `{table}` ADD PRIMARY KEY(`{PrimaryKeyName}`);".format(table=tableName,PrimaryKeyName=PrimaryKeyName))
     for valueVec in dataFrame.values:
         strValues = ''
         for value in valueVec:
@@ -92,4 +99,26 @@ class DBItemsNutClass:
     def SaveToDB(self, dbConn):
         CreateTableFromDF(dbConn, self.__tableItemNutValues__,
                             self.__tableName__,
+                            PrimaryKeyName=self.__itemName__,
                             ifExists = 'replace')
+
+class DBItemsNutClass:
+    __tableDailyItems__ = None
+    __tableName__ = 'db_daily_items'
+
+    def AddNutsListPerItem(self,itemName, tableNut):
+        tableNut[self.__itemName__] =   itemName
+        if self.__tableItemNutValues__ is None:
+            newItemIdx = 0
+            self.__tableItemNutValues__ = pd.DataFrame(tableNut,index=[newItemIdx])
+        else:
+            newItemIdx = len(self.__tableItemNutValues__.index)
+            self.__tableItemNutValues__.loc[newItemIdx]=tableNut
+
+    def LoadFromDB(self, dbConn):
+        self.__tableItemNutValues__ = ReadTableAsDF(dbConn, self.__tableName__)
+
+    def SaveToDB(self, dbConn):
+        CreateTableFromDF(dbConn, self.__tableItemNutValues__,
+                            self.__tableName__,
+                            ifExists = 'append')
