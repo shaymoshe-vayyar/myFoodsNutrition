@@ -42,73 +42,88 @@
         table, th, td {
             border-collapse: collapse;
             border:1px solid;
-            th {
-                background-color: lightgrey;
-            }
         }
-    </style>
+        th {
+            background-color: lightgrey;
+        }    </style>
 <!--    Style-->
 
 </head>
-<body onload="docLoaded()" style="background-color:#dcd7d3">
+<body onload="docLoaded()" style="background-color:#dcd7d3;">
 
-<nav class="w3-sidebar w3-bar-block w3-card" id="mySidebar">
-  <div class="w3-container w3-theme-light-blue">
-    <span onclick="closeSidebar()" class="w3-button w3-display-topright w3-large">X</span>
-    <br>
-  </div>
-  <a class="w3-bar-item w3-button" href="#">Diary</a>
-  <a class="w3-bar-item w3-button" href="#">Settings</a>
+<hr>
+<nav class="w3-sidebar w3-bar-block w3-card-4" id="mySidebar" style="display: none;right:5px;">
+    <button onclick='document.getElementById("mySidebar").style.display = "none";' class="w3-button w3-display-topright w3-large">X</button>
+    <h3 class="w3-bar-item w3-button" href="#">יומן מעקב יומי</h3>
+    <h3 class="w3-bar-item w3-button" href="#">הגדרות</h3>
 </nav>
-
-<header class="w3-top w3-bar ">
-  <button class="w3-bar-item w3-button w3-xxxlarge w3-hover-theme" onclick="openSidebar()">&#9776;</button>
-  <h1 class="w3-bar-item">Diary</h1>
+<header class="w3-main w3-cell-row" >
+    <button class="w3-button w3-cell w3-xlarge w3-right w3-hover-theme w3-hide-large" style="float:right;" onclick='document.getElementById("mySidebar").style.display = "block";'>&#9776;</button>
+    <h2 class="w3-cell w3-right" style="float:right; margin: 5px;">יומן מעקב יומי</h2>
 </header>
-
-<div class="w3-container" style="margin-top:90px">
-  <hr>
-  <div class="w3-cell-row">
-    <div class="container">
-      <div class="row" > <!-- date and summary -->
-        <div class="col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" style="background-color:#ffffff">
-          <p class="row"></p>
-          <p class="row"></p>
-          <div class="row">
-            <div class='col-xs-6 col-sm-4 col-xs-offset-3 col-sm-offset-4'>
-              <!--          <button class="w3-button w3-circle w3-black"><</button>-->
-              <input type='text' class="form-control" id='picker' style="text-align:center;" >
-              <!--          <button class="w3-button w3-circle w3-black">></button>-->
+<hr>
+<div class="w3-container w3-row" style="position: relative;">
+<!--    <div class="w3-col l1 m1 s1" ></div>-->
+<!--    <div class="w3-rest w3-container"  >-->
+        <div class="w3-cell-row" style="background-color:#ffffff;">     <!-- Date and Summary -->
+            <br>
+            <div class="w3-cell-row" >
+                <div class="w3-cell" style="width:30%;"></div>
+                <input type='text' class="form-control w3-rest" id='picker' style="text-align:center;" >
+                <script type="text/javascript">
+                    $(function () {
+                        $('#picker').datetimepicker({viewMode: 'days', format: 'YYYY-MM-DD', useCurrent : true,
+                            showTodayButton : true,
+                            widgetPositioning: {
+                                horizontal: 'auto',
+                            },
+                            defaultDate : new Date()});
+                        $("#picker").on("dp.change", function (e) {
+                            $('#qr').focus();
+                        });
+                    });
+                </script>
+                <div class="w3-cell" style="width:30%"></div>
             </div>
-            <p class="row"></p>
-            <p class="row"></p>
-            <p class="row"></p>
-            <p class="row"></p>
-            <p class="row"></p>
-          </div>
-        </div>
-        <script type="text/javascript">
-         $(function () {
-             $('#picker').datetimepicker({viewMode: 'days', format: 'YYYY-MM-DD', useCurrent : true,
-             showTodayButton : true,
-             defaultDate : new Date()});
-             $("#picker").on("dp.change", function (e) {
-            $('#qr').focus();
-        });
-         });
-      </script>
-      </div> <!-- date and summary -->
+            <br>
+            <br>
+        </div>                                                             <!-- Date and Summary -->
+        <br>
+        <div >                                            <!-- Search Query -->
+            <input type="search" dir="rtl" text-align="right" name="qr" id="qr"
+                   placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" onsearch="qrSearchSubmitted()"
+                   aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
+
+            <ul popover id="qrpopover" style="position:relative; inset=unset;top=40px"></ul>
+        </div>                                                              <!-- Search Query -->
+
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+        <br>
+    </div>
+<!--    <div class="w3-col l1 m1 s1" ></div>-->
+<!--</div>                                                          <!-- Date and Summary -->-->
+<br>
+<br>
+<div class="w3-container" >
+    <br>
+    <div class="container">
+
       <p></p>                     <!-- Blank -->
       <div class="row">    <!-- Search Query -->
         <div class="col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" style="padding: 0;">
           <div class="search-div" style="padding: 15px 0 !important;">
             <form>
               <div class="form-group">
-                <input type="search" dir="rtl" text-align="right" name="qr" id="qr"
+                <input type="search" dir="rtl" text-align="right" name="qr11" id="qr11"
                        placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" onsearch="qrSearchSubmitted()"
                        aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
 
-                  <ul popover id="qrpopover" style="position:relative; inset=unset;top=40px">
+                  <ul popover id="qrpopover11" style="position:relative; inset=unset;top=40px">
                   </ul>
 <!--                  <datalist id="ListName" dir="rtl" text-align="right">-->
 <!--                  <option value="מלפפון"></option>-->
@@ -133,7 +148,7 @@
             <div class="col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" style="background-color:#ffffff">
                 <p class="row"></p>
                 <p class="row"></p>
-                
+
                 <div class="row" id="rowForNutValueTable" >
                 </div>
             </div>
@@ -143,14 +158,7 @@
     <h3>Footer</h3>
   </footer>
   <script>
-    closeSidebar();
-function openSidebar() {
-  document.getElementById("mySidebar").style.display = "block";
-}
 
-function closeSidebar() {
-  document.getElementById("mySidebar").style.display = "none";
-}
 function docLoaded()
 {
     dateToAdd = document.getElementById("picker").value;
@@ -163,7 +171,7 @@ function docLoaded()
             document.getElementById('rowForNutValueTable').innerHTML = this.responseText;
         }
     };
-    xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd, true);
+    //xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd, true);
 
     xmlhttp.send();
 
@@ -278,27 +286,26 @@ function updateQRSuggestions() {
 }
 function qrSearchSubmitted() {
     //if (e.key === 'Enter' || e.keyCode === 13) {
-        console.log('submitted');
-        itemToAdd = $('#qr').data('selItem');
-        //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
-        dateToAdd = document.getElementById("picker").value;
-        quantity = $('#qr').data('quantity');
-        mealTimeSlot = '';
-        console.log("itemToAdd=" + itemToAdd);
-        var xmlhttp = new XMLHttpRequest();
-        xmlhttp.onreadystatechange = function () {
-            //console.log(this.readyState); //
-            //console.log(this.status); //
-            if (this.readyState == 4 && this.status == 200) {
-                console.log(this.responseText);
-                document.getElementById('blabla').textContent = this.responseText;
-            }
-        };
-        xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
+    console.log('submitted');
+    itemToAdd = $('#qr').data('selItem');
+    //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
+    dateToAdd = document.getElementById("picker").value;
+    quantity = $('#qr').data('quantity');
+    mealTimeSlot = '';
+    console.log("itemToAdd=" + itemToAdd);
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        //console.log(this.readyState); //
+        //console.log(this.status); //
+        if (this.readyState == 4 && this.status == 200) {
+            console.log(this.responseText);
+            document.getElementById('blabla').textContent = this.responseText;
+        }
+    };
+    xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
 
-        xmlhttp.send();
+    xmlhttp.send();
     //}
-
 }
 
   </script>
