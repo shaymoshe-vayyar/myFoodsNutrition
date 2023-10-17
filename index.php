@@ -37,6 +37,18 @@
 </script>
   <!-- Script -->
 
+<!--    Style -->
+    <style>
+        table, th, td {
+            border-collapse: collapse;
+            border:1px solid;
+            th {
+                background-color: lightgrey;
+            }
+        }
+    </style>
+<!--    Style-->
+
 </head>
 <body onload="docLoaded()" style="background-color:#dcd7d3">
 
@@ -111,13 +123,21 @@
           <div id="searchResultsDiv" style="width: 100%;"></div>
         </div>
       </div>       <!-- Search Query -->
+        <br>
+        <hr>
+        <div class="row">
+            <p id="blabla"></p>
+            <button onclick="qrSearchSubmitted()"></button>
+        </div>
+        <div class="row" >
+            <div class="col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" style="background-color:#ffffff">
+                <p class="row"></p>
+                <p class="row"></p>
+                
+                <div class="row" id="rowForNutValueTable" >
+                </div>
+            </div>
     </div>
-    <br>
-    <hr>
-      <div class="row">
-          <p id="blabla"></p>
-          <button onclick="qrSearchSubmitted()"></button>
-      </div>
   </div>
   <footer class="w3-container w3-bottom w3-margin-top">
     <h3>Footer</h3>
@@ -133,7 +153,21 @@ function closeSidebar() {
 }
 function docLoaded()
 {
-  $('#qr').focus();
+    dateToAdd = document.getElementById("picker").value;
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function () {
+        //console.log(this.readyState); //
+        //console.log(this.status); //
+        if (this.readyState == 4 && this.status == 200) {
+            console.log(this.responseText);
+            document.getElementById('rowForNutValueTable').innerHTML = this.responseText;
+        }
+    };
+    xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd, true);
+
+    xmlhttp.send();
+
+    $('#qr').focus();
 }
 function isMobile() {
   const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
