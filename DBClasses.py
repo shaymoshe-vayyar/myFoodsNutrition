@@ -78,6 +78,34 @@ def CreateTableFromDF(mydbConn,
     mydbConn.commit()
     print("Done")
 
+def CreateTableFromKeyValueDict(mydbConn,
+                      KeyValueDict: dict,
+                      tableName,
+                      KeyColName='keyCol',
+                      ValueColName='valueCol',
+                      ifExists: Literal['fail', 'replace', 'append'] = 'fail'):
+    # dataFrame.to_sql(tableName, self.mydbConn, if_exists=ifExists);
+    mycursor = mydbConn.cursor()
+    if (ifExists=='fail'):
+        mycursor.execute("CREATE TABLE {table} ({KeyColName} varchar(255),{ValueColName} varchar(255));".format(table=tableName,
+                                                                                                                             KeyColName = KeyColName,
+                                                                                                                             ValueColName = ValueColName))
+    else: # replace or append -> Create the table only if not exists
+        mycursor.execute(
+            "CREATE TABLE IF NOT EXISTS {table} ({KeyColName} varchar(255),{ValueColName} varchar(255));".format(
+                table=tableName,
+                KeyColName=KeyColName,
+                ValueColName=ValueColName))
+
+    if (ifExists == 'replace'):
+        mycursor.execute(f"TRUNCATE `{tableName}`")
+
+    for keyI in KeyValueDict:
+        valueI = KeyValueDict[keyI]
+        mycursor.execute(f"INSERT INTO {tableName} ({KeyColName}, {ValueColName}) VALUES ('{keyI}', '{valueI}');")
+
+    mydbConn.commit()
+    print("Done")
 
 class DBItemsNutClass:
     __itemName__ = 'itemName'
@@ -101,4 +129,6 @@ class DBItemsNutClass:
                             self.__tableName__,
                             PrimaryKeyName=self.__itemName__,
                             ifExists = 'replace')
+
+
 

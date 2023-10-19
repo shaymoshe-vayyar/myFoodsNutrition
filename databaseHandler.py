@@ -4,6 +4,8 @@ import mysql
 import mysql.connector
 from sqlalchemy import create_engine
 import DBClasses
+import HandleConversion
+import getDailyNutritionGoals
 from DBClasses import *
 
 ### https://pandas.pydata.org/docs/reference/api/pandas.read_json.html
@@ -79,6 +81,32 @@ def LoadItemsListToRead():
     return itemsUrlParsingDB
 
 def StoreItemsNutDatabase(DBItemsNut : DBItemsNutClass, fileName=None):
+    CreateTableFromKeyValueDict(__mySqlMng__.mydbConn,
+                                HandleConversion.__dictEngNameToHebName__,
+                                tableName='conversion_eng_name_to_heb',
+                                ifExists='replace')
+
+    dictNutUnitsForDisplayEng = dict()
+    for nutNameHeb in HandleConversion.__dictNutNameToUnitsForDisplay__:
+        nutNameEng = HandleConversion.__dictHebNameToEngName__[nutNameHeb]
+        unitsEng = HandleConversion.__dictHebNameToEngName__[HandleConversion.__dictNutNameToUnitsForDisplay__[nutNameHeb]]
+        dictNutUnitsForDisplayEng[nutNameEng] = unitsEng
+    CreateTableFromKeyValueDict(__mySqlMng__.mydbConn,
+                      dictNutUnitsForDisplayEng,
+                      tableName='conversion_nut_units_to_display',
+                      ifExists='replace')
+
+    CreateTableFromKeyValueDict(__mySqlMng__.mydbConn,
+                      HandleConversion.GramConversionTable,
+                      tableName='conversion_units_to_standard',
+                      ValueColName='ValueInGramCol',
+                      ifExists='replace')
+
+    CreateTableFromKeyValueDict(__mySqlMng__.mydbConn,
+                      getDailyNutritionGoals.__nutDailyRecommendedValues__,
+                      tableName='daily_nutrition_goals',
+                      ifExists='replace')
+
     DBItemsNut.SaveToDB(__mySqlMng__.mydbConn)
 
 def LoadItemsNutDatabase(fileName=None):

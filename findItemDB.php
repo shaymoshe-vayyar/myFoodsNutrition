@@ -7,32 +7,13 @@ $q = $_GET['q'];
 
 $isFull = $_GET['isFull'];
 
-//$host = 'pc';
-//$host = 'web';
-$server1 = $_SERVER['SERVER_NAME'];
-if (str_contains($server1,'PhpStorm')) // ($host == 'pc')
-{
-    $host = 'localhost';
-    $username = 'root';
-    $password = '';
-    $database = 'ajax_demo';
-}
-else
-{
-    $host = '127.0.0.1';
-    $username = 'u230048523_shay';
-    $password = 'MosheMoshe1!';
-    $database = "u230048523_ajax_demo";
-}
-
-
-
-$con = mysqli_connect($host,$username,$password);
+include 'globals.php';
+$con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }
 
-mysqli_select_db($con,$database);
+mysqli_select_db($con,$_SESSION['database']);
 if ($isFull == '1') {
 //    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName=='" . $q."';";
 //    $result = mysqli_query($con, $sql);

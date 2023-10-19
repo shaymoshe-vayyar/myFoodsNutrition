@@ -42,9 +42,7 @@ def ParseUrl(url):
             for contentSection in nutDataEnt[0].contents:
                 if (contentSection.name == 'a'):
                     linkEng = contentSection.attrs['href']
-                    EngNutName = linkEng[linkEng.rfind('/')+1:linkEng.rfind('.')]
-            HandleConversion.__dictEngNutNameToHebNutName__[EngNutName] = nutName
-            HandleConversion.__dictHebNutNameToEngNutName__[nutName] = EngNutName
+                    EngNutName = (linkEng[linkEng.rfind('/')+1:linkEng.rfind('.')]).lower()
             # m = re.search(r'\((.*?)\)', nutName)
             nutUnits = nutName[nutName.find("(") + 1:nutName.find(")")]
             if nutName.find("("):
@@ -58,9 +56,12 @@ def ParseUrl(url):
             if (nutNameWOUnits.find(__ignoreNut__)>=0):
                 continue
 
+            HandleConversion.__dictEngNameToHebName__[EngNutName] = nutNameWOUnits
+            HandleConversion.__dictHebNameToEngName__[nutNameWOUnits] = EngNutName
+
             # print("{} ({}) = {}, {}".format(nutNameWOUnits,EngNutName,nutValue,nutUnits))
             ## Generate Default Display Units Dictionary
-            #if (HandleConversion.__nutUnitsConversionToDisplay__[HandleConversion.__tspn__]!=nutUnits):
+            #if (HandleConversion.__dictEngNameToHebName__[HandleConversion.__tspn__]!=nutUnits):
             #    print("     '{}' : '{}',".format(nutNameWOUnits,nutUnits))
 
             [convertedValue, convertedUnit] = HandleConversion.convertUnitToStandard(nutValue, nutUnits)

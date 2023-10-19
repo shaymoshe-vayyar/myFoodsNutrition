@@ -14,12 +14,13 @@
 <!--https://firstclicklimited.com/tutorials/index.php/2021/08/04/html-dropdown-with-text-input/-->
 <!--https://stackoverflow.com/questions/17929356/html-datalist-values-from-array-in-javascript-->
 <!--https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event-->
-<html lang="he" >
+<html lang="he" style="font-size: 16px;">
 <head>
   <!--  <meta content="text/html; charset=windows-1255" http-equiv="Content-Type">-->
   <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
   <title>myDiary</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--    maximum-scale=1 is used for iphone to avoid auto-zoom-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3pro.css">
   <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-teal.css">
 
@@ -58,13 +59,11 @@
     <h3 class="w3-bar-item w3-button" href="#">הגדרות</h3>
 </nav>
 <header class="w3-main w3-cell-row" >
-    <button class="w3-button w3-cell w3-xlarge w3-right w3-hover-theme w3-hide-large" style="float:right;" onclick='document.getElementById("mySidebar").style.display = "block";'>&#9776;</button>
+    <button class="w3-button w3-cell w3-xlarge w3-right w3-hover-theme" style="float:right;" onclick='document.getElementById("mySidebar").style.display = "block";'>&#9776;</button>
     <h2 class="w3-cell w3-right" style="float:right; margin: 5px;">יומן מעקב יומי</h2>
 </header>
 <hr>
 <div class="w3-container w3-row" style="position: relative;">
-<!--    <div class="w3-col l1 m1 s1" ></div>-->
-<!--    <div class="w3-rest w3-container"  >-->
         <div class="w3-cell-row" style="background-color:#ffffff;">     <!-- Date and Summary -->
             <br>
             <div class="w3-cell-row" >
@@ -89,8 +88,8 @@
             <br>
         </div>                                                             <!-- Date and Summary -->
         <br>
-        <div >                                            <!-- Search Query -->
-            <input type="search" dir="rtl" text-align="right" name="qr" id="qr"
+        <div>                                            <!-- Search Query -->
+            <input type="search" dir="rtl" name="qr" id="qr"
                    placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" onsearch="qrSearchSubmitted()"
                    aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
 
@@ -100,63 +99,20 @@
         <br>
         <br>
         <br>
+        <div class="w3-row" style="background-color: darkslategrey;">
+            <button class="w3-cell w3-button w3-left" style="color: lightgrey;font-weight: bold" onclick="openCity('London')">תפריט מוצרים</button>
+            <button class="w3-cell w3-button w3-right" style="color: lightgrey;font-weight: bold" onclick="openCity('Paris')">טבלת ערכים</button>
+        </div>
         <br>
         <br>
+
+        <div id="nutDataDiv"></div>
         <br>
         <br>
     </div>
-<!--    <div class="w3-col l1 m1 s1" ></div>-->
-<!--</div>                                                          <!-- Date and Summary -->-->
 <br>
 <br>
-<div class="w3-container" >
-    <br>
-    <div class="container">
 
-      <p></p>                     <!-- Blank -->
-      <div class="row">    <!-- Search Query -->
-        <div class="col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" style="padding: 0;">
-          <div class="search-div" style="padding: 15px 0 !important;">
-            <form>
-              <div class="form-group">
-                <input type="search" dir="rtl" text-align="right" name="qr11" id="qr11"
-                       placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" onsearch="qrSearchSubmitted()"
-                       aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
-
-                  <ul popover id="qrpopover11" style="position:relative; inset=unset;top=40px">
-                  </ul>
-<!--                  <datalist id="ListName" dir="rtl" text-align="right">-->
-<!--                  <option value="מלפפון"></option>-->
-<!--                  <option value="עגבניה">Dry fish</option>-->
-<!--                  <option value="עגבנית שרי">Palm oil</option>-->
-<!--                </datalist>-->
-                <!--                <button type="button" class="btn control-no-focus btn-clean-search" style="display: none;"><i class="fas fa-times">&#xf00d;</i></button>-->
-                <!--                <button type="submit" class="btn control-no-focus"><i class="far fa-search">&#xf002;</i></button>-->
-              </div>
-            </form>
-          </div>
-          <div id="searchResultsDiv" style="width: 100%;"></div>
-        </div>
-      </div>       <!-- Search Query -->
-        <br>
-        <hr>
-        <div class="row">
-            <p id="blabla"></p>
-            <button onclick="qrSearchSubmitted()"></button>
-        </div>
-        <div class="row" >
-            <div class="col-sm-10 col-sm-offset-1 col-xs-10 col-xs-offset-1" style="background-color:#ffffff">
-                <p class="row"></p>
-                <p class="row"></p>
-
-                <div class="row" id="rowForNutValueTable" >
-                </div>
-            </div>
-    </div>
-  </div>
-  <footer class="w3-container w3-bottom w3-margin-top">
-    <h3>Footer</h3>
-  </footer>
   <script>
 
 function docLoaded()
@@ -168,10 +124,10 @@ function docLoaded()
         //console.log(this.status); //
         if (this.readyState == 4 && this.status == 200) {
             console.log(this.responseText);
-            document.getElementById('rowForNutValueTable').innerHTML = this.responseText;
+            document.getElementById('nutDataDiv').innerHTML = this.responseText;
         }
     };
-    //xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd, true);
+    xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd, true);
 
     xmlhttp.send();
 

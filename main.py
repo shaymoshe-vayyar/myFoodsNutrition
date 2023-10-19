@@ -2,6 +2,11 @@ import myGui
 import databaseHandler
 import parsingEngine
 
+# getDailyNutritionGoals
+import getDailyNutritionGoals
+#getDailyNutritionGoals.Parse()
+
+
 if True:
     ###
     ## Read List of items to retrieve and from where
