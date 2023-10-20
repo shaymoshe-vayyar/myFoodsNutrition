@@ -16,8 +16,8 @@
 <!--https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event-->
 <html lang="he" style="font-size: 16px;">
 <head>
+    <meta content="charset=utf-8; text/html" http-equiv="Content-Type">
   <!--  <meta content="text/html; charset=windows-1255" http-equiv="Content-Type">-->
-  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
   <title>myDiary</title>
     <!--    maximum-scale=1 is used for iphone to avoid auto-zoom-->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -68,7 +68,7 @@
             <br>
             <div class="w3-cell-row" >
                 <div class="w3-cell" style="width:30%;"></div>
-                <input type='text' class="form-control w3-rest" id='picker' style="text-align:center;" >
+                <input type='text' class="form-control w3-rest" aria-label="picker" id='picker' style="text-align:center;" >
                 <script type="text/javascript">
                     $(function () {
                         $('#picker').datetimepicker({viewMode: 'days', format: 'YYYY-MM-DD', useCurrent : true,
@@ -123,7 +123,7 @@ function docLoaded()
         //console.log(this.readyState); //
         //console.log(this.status); //
         if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
+            //console.log(this.responseText);
             document.getElementById('nutDataDiv').innerHTML = this.responseText;
         }
     };
@@ -152,7 +152,7 @@ function updateQRSuggestions() {
     // If selected text matches 'Other', display the text field.
 
     // document.getElementById('qr').data-fullnamesuggest = '';
-    console.log("data="+$('#qr').data('selItem'));
+    // console.log("data="+$('#qr').data('selItem'));
     $('#qr').data('selItem','');
     $('#qr').data('quantity',0);
     if (dropDownText == "") {
@@ -164,22 +164,22 @@ function updateQRSuggestions() {
         hebWordsInStr = dropDownText.match(/[\u0590-\u05FF]+/g)
         if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
         {
-        console.log('------------------------------');
-        console.log(hebWordsInStr.join(' ')); //
-        console.log('------------------------------');
+            // console.log('------------------------------');
+            // console.log(hebWordsInStr.join(' ')); //
+            // console.log('------------------------------');
         }
         numDesiredQuantity = 100;
         if ((numbersInStr != null) && (numbersInStr.length>0)) {
             if (numbersInStr.length > 1)
             {
-                console.log('error, too many numbers');
+                console.error('too many numbers');
             }
             else
             {
                 numDesiredQuantity = parseFloat(numbersInStr[0])
-                console.log('------------------------------');
-                console.log(numDesiredQuantity); //
-                console.log('------------------------------');
+                // console.log('------------------------------');
+                // console.log(numDesiredQuantity); //
+                // console.log('------------------------------');
             }
         }
         if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
@@ -222,7 +222,7 @@ function updateQRSuggestions() {
                   {
                       $('#qrpopover').hide();
                   }
-                  console.log(text);
+                  // console.log(text);
                   //document.getElementById("ListName").innerHTML = text;
                   document.getElementById("qrpopover").innerHTML = text;
               }
@@ -241,27 +241,27 @@ function updateQRSuggestions() {
     }
 }
 function qrSearchSubmitted() {
-    //if (e.key === 'Enter' || e.keyCode === 13) {
-    console.log('submitted');
+    if (e.key === 'Enter' || e.keyCode === 13) {
+    // console.log('submitted');
     itemToAdd = $('#qr').data('selItem');
     //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
     dateToAdd = document.getElementById("picker").value;
     quantity = $('#qr').data('quantity');
     mealTimeSlot = '';
-    console.log("itemToAdd=" + itemToAdd);
+    // console.log("itemToAdd=" + itemToAdd);
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onreadystatechange = function () {
         //console.log(this.readyState); //
         //console.log(this.status); //
         if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
+            // console.log(this.responseText);
             document.getElementById('blabla').textContent = this.responseText;
         }
     };
     xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
 
     xmlhttp.send();
-    //}
+    }
 }
 
   </script>

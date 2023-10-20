@@ -52,7 +52,7 @@ if ((!array_key_exists($isSet, $_SESSION)) or (!$_SESSION[$isSet])) {
     {
         $_SESSION['host'] = '127.0.0.1';
         $_SESSION['username'] = 'u230048523_shay';
-        $_SESSION['password'] = 'MosheMoshe1';
+        $_SESSION['password'] = 'MosheMoshe1!';
         $_SESSION['database'] = 'u230048523_ajax_demo';
         $_SESSION['isLocal'] = False;
     }
@@ -68,7 +68,7 @@ if ((!array_key_exists($isSet, $_SESSION)) or (!$_SESSION[$isSet])) {
     $_SESSION['engNameToHebDict'] = readDictTable('conversion_eng_name_to_heb', $con);
     $_SESSION['nutUnitsToDisplayDict'] = readDictTable('conversion_nut_units_to_display', $con);
     $_SESSION['nutWeightUnitsToStandardDict'] = readDictTable('conversion_units_to_standard', $con);
-
+    $_SESSION['dailyNutritionGoalsDict'] = readDictTable('daily_nutrition_goals', $con);
 
     $_SESSION[$isSet] = True;
 }

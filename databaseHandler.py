@@ -16,8 +16,8 @@ from DBClasses import *
 ### MySql to pandas:    https://www.plus2net.com/python/pandas-mysql.php
 ### https://proclusacademy.com/blog/practical/pandas-read-write-sql-database/
 
-__host__ = 'pc';
-#__host__ = 'web';
+# __host__ = 'pc';
+__host__ = 'web';
 
 class mySqlMng():
     def __init__(self):
@@ -82,6 +82,11 @@ def LoadItemsListToRead():
 
 def StoreItemsNutDatabase(DBItemsNut : DBItemsNutClass, fileName=None):
     CreateTableFromKeyValueDict(__mySqlMng__.mydbConn,
+                      getDailyNutritionGoals.__nutDailyRecommendedValues__,
+                      tableName='daily_nutrition_goals',
+                      ifExists='replace')
+
+    CreateTableFromKeyValueDict(__mySqlMng__.mydbConn,
                                 HandleConversion.__dictEngNameToHebName__,
                                 tableName='conversion_eng_name_to_heb',
                                 ifExists='replace')
@@ -100,11 +105,6 @@ def StoreItemsNutDatabase(DBItemsNut : DBItemsNutClass, fileName=None):
                       HandleConversion.GramConversionTable,
                       tableName='conversion_units_to_standard',
                       ValueColName='ValueInGramCol',
-                      ifExists='replace')
-
-    CreateTableFromKeyValueDict(__mySqlMng__.mydbConn,
-                      getDailyNutritionGoals.__nutDailyRecommendedValues__,
-                      tableName='daily_nutrition_goals',
                       ifExists='replace')
 
     DBItemsNut.SaveToDB(__mySqlMng__.mydbConn)

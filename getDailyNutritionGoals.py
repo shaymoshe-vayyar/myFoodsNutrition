@@ -58,6 +58,24 @@ def Parse():
         #print(f'{nutName},{nutValue} {nutUnits}')
         dailyRecommendedValues[nutName]=nutValueInGram
 
+    dailyRecommendedValues['calories'] = 1910;
+    dailyRecommendedValues['proteins'] = dailyRecommendedValues['protein'];
+    dailyRecommendedValues['carbohydrates'] = dailyRecommendedValues['carbohydrate'];
+    dailyRecommendedValues['total_fat'] = dailyRecommendedValues['fat'];
+    dailyRecommendedValues['dietary_fiber'] = dailyRecommendedValues['total_fiber'];
+    dailyRecommendedValues['cholesterol'] = -1;
+    dailyRecommendedValues['water'] = -1;
+    dailyRecommendedValues['lycopene'] = 8e-3; # should be between 8 - 21 mg
+    dailyRecommendedValues['vitamin_b'] = -1;
+    dailyRecommendedValues['vitamin_b6'] = 1.3e-3;
+    dailyRecommendedValues['vitamin_b9_folic_acid'] = dailyRecommendedValues['vitamin_b9'];
+    dailyRecommendedValues['polyunsaturated'] = dailyRecommendedValues['calories'] * 0.05;
+    dailyRecommendedValues['omega3'] = 1.6;
+    dailyRecommendedValues['omega6'] = 0.1 *dailyRecommendedValues['calories'];
+    dailyRecommendedValues['monounsaturated'] = -1;
+    dailyRecommendedValues['omega9'] = -1;
+
     return dailyRecommendedValues
 
 __nutDailyRecommendedValues__ = Parse()
+
