@@ -16,8 +16,8 @@ from DBClasses import *
 ### MySql to pandas:    https://www.plus2net.com/python/pandas-mysql.php
 ### https://proclusacademy.com/blog/practical/pandas-read-write-sql-database/
 
-# __host__ = 'pc';
-__host__ = 'web';
+__host__ = 'pc';
+#__host__ = 'web';
 
 class mySqlMng():
     def __init__(self):
@@ -55,6 +55,8 @@ __mySqlMng__ = mySqlMng()
 # TODO: TMP Remove
 # my_data = pd.read_sql("SELECT * FROM user", myDBConn.mydbConn)
 
+def getSqlConnection():
+    return __mySqlMng__
 
 __DBItemsFileName__ = r'C:\Users\ShayMoshe\OneDrive - vayyar.com\Documents\Personal\MyTestsFoodApp\DBItems.json'
 __DBDailyDataFileName__ = r'C:\Users\ShayMoshe\OneDrive - vayyar.com\Documents\Personal\MyTestsFoodApp\DBDailyData.json'

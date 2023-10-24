@@ -1,50 +1,41 @@
-import myGui
-import databaseHandler
-import parsingEngine
+import DatabaseHandler
 
-# getDailyNutritionGoals
-import getDailyNutritionGoals
-#getDailyNutritionGoals.Parse()
+# App 0
+import createBasicTablesDB
+createBasicTablesDB.createEngHebTermsTableDB()
+createBasicTablesDB.createNutValuesTableDB()
+createBasicTablesDB.createNutUnitsToDisplayTableDB()
+createBasicTablesDB.createDailyNutGoalsTableDB()
 
+# App1
+# Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
+# Then allow the user to select the item, change item name and it will be stored in the DB
+import HandleItemsAndNutValuesDBs
+DatabaseHandler.__host__ = DatabaseHandler.setHost(DatabaseHandler.__host__,'pc')
+HandleItemsAndNutValuesDBs.GuiFoodData()
 
-if True:
-    ###
-    ## Read List of items to retrieve and from where
-    #   1st step: only from foodsdictionary, only URL option
-    #   Later: add name search, add USDA site
-    itemsUrlParsingDB = databaseHandler.LoadItemsListToRead()
+# App2
+# Recreate DBs: ItemNutValues, Empty Daily items, conversion tables (eng-heb names, units), display_units_per_nut_type, nut values goals nad UL,
+# Host can be 'pc' or 'web'
+HandleItemsAndNutValuesDBs.createDBNutUnitsForDisplay()
 
-    ## Go over the list, read each item
-    #   Read, and translate the units and names to global
-    #   Later: Add the items to existing DB
-    DBItemsNut = parsingEngine.readItems(itemsUrlParsingDB)
-
-    ## Save Database
-    databaseHandler.StoreItemsNutDatabase(DBItemsNut)
-
-else:
-    ## Load Database
-    DBItems = databaseHandler.LoadItemsNutDatabase()
-
-
-### Build GUI to search on DB
-#myGui.GuiFoodData(DBItems)
-
-### Build the daily Database
-#    1st step: Entering by name, time of meal is noon always
-#    Later: add time of meal, search while typing, allow inserting quantities in free text, default unit is gram
-#           add additional multiple choice of names to the same item
-# Daily DB
-#   Daily quantity until now per nutrition type
+# TODO:
+# Add tables of eng translation from CSV
 #
-# Daily Recommended
-#   Gram/CAL per nutrition type
-### Build GUI to manage the daily items
-# Date of day in ISR
-DBDailyData = databaseHandler.LoadItemsNutDatabase()
-myGui.GuiFoodDailyManager(DBItems, DBDailyData)
-
-print('here')
-
-
-
+# ***Done*** Add url link per name and store in a table
+#
+# Fix פחמימות
+# לתקן נתרן
+# להוסיף תרגום מדוייק מעברית, לתקן שפחמימות ומתוכן סוכרים מתרגם לאותה מילה באנגלית
+# האם לעשות את הדיפולט NULLאו אפס
+#
+# Create all tables from Python
+#
+# Nutrition table
+# Add defaults to all Nut cols.
+#
+#
+# Fix webpage - add change and remove for items, add תפריט view, add iphone audio commands - מחק שורה, הכנס
+#
+#
+# Add DB From USDA

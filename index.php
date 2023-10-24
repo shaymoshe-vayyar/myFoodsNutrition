@@ -241,7 +241,7 @@ function updateQRSuggestions() {
     }
 }
 function qrSearchSubmitted() {
-    if (e.key === 'Enter' || e.keyCode === 13) {
+    // if (e.key === 'Enter' || e.keyCode === 13) {
     // console.log('submitted');
     itemToAdd = $('#qr').data('selItem');
     //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
@@ -261,7 +261,7 @@ function qrSearchSubmitted() {
     xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
 
     xmlhttp.send();
-    }
+    // }
 }
 
   </script>

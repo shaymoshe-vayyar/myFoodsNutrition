@@ -2,6 +2,21 @@ import pandas as pd
 from typing import Literal
 from math import isnan
 
+# Connection is stayed open as long the python is alive and closed upon Python ends
+## 2 types of SQL tables:
+#   * key-value sql. the index is usually the key, and the return value is the value. column names are 'key','value'
+#           Stored as dictionary
+#   * 2D table of multiples values per key/index, can be with primary key or with index, index can be unique or not, can be auto-increment
+#           columns names are table's specific, default columns values as input,
+#           columns types are derived automatically from cell-values' types
+#           stored as array of array in Python
+# Operations are:
+#   * Load all table
+#   * Save all table
+#   * Update Item
+#   * Delete Table (including backup option)
+__DBItemsSourceLinksTableName__ = 'tableItemsSourceLinks'
+
 def ReadTableAsDF(mydbConn,tableName, index_col=None):
     frame = None
     try:
@@ -105,7 +120,6 @@ def CreateTableFromKeyValueDict(mydbConn,
         mycursor.execute(f"INSERT INTO {tableName} ({KeyColName}, {ValueColName}) VALUES ('{keyI}', '{valueI}');")
 
     mydbConn.commit()
-    print("Done")
 
 class DBItemsNutClass:
     __itemName__ = 'itemName'
@@ -130,5 +144,51 @@ class DBItemsNutClass:
                             PrimaryKeyName=self.__itemName__,
                             ifExists = 'replace')
 
+    def AddItemToSqlDb(item : dict):
+        strCols =  ','.join(list(item.keys()))
+        strValues =  str(list(item.values())).replace('[','').replace(']','')
+        from databaseHandler import getSqlConnection
+        mycursor = getSqlConnection().mydbConn.cursor()
+        mycursor.execute("INSERT INTO {table} ({strCols}) VALUES ({strValues});".format(table=DBItemsNutClass.__tableName__,
+                                                                                        strCols=strCols,
+                                                                       strValues=strValues))
+        getSqlConnection().mydbConn.commit()
 
+
+def Read2DTableFromSql(tableName : str):
+    strCols = ','.join(list(item.keys()))
+    strValues = str(list(item.values())).replace('[', '').replace(']', '')
+    from databaseHandler import getSqlConnection
+    mycursor = getSqlConnection().mydbConn.cursor()
+    mycursor.execute("INSERT INTO {table} ({strCols}) VALUES ({strValues});".format(table=DBItemsNutClass.__tableName__,
+                                                                                    strCols=strCols,
+                                                                                    strValues=strValues))
+    getSqlConnection().mydbConn.commit()
+
+
+# def deleteSqlTable(tableName : str)
+
+def Save2DTableToSql(tableName : str,
+                     arr_Items_Fields : list,
+                    primaryKeyName : str = None,
+                    ifExists : Literal['fail', 'replace', 'append'] = 'replace'):
+    strcols = ','.join(list(itemdict_kv.keys()))
+    strvalues = str(list(itemdict_kv.values())).replace('[', '').replace(']', '')
+    from databaseHandler import getSqlConnection
+    mycursor = getSqlConnection().mydbConn.cursor()
+    mycursor.execute("INSERT INTO {table} ({strCols}) VALUES ({strValues});".format(table=tablename,
+                                                                                    strCols=strcols,
+                                                                                    strValues=strvalues))
+    getSqlConnection().mydbConn.commit()
+
+def AddItemTo2DSqlTable(tablename : str,
+                        itemdict_kv : dict):
+    strcols = ','.join(list(itemdict_kv.keys()))
+    strvalues = str(list(itemdict_kv.values())).replace('[', '').replace(']', '')
+    from databaseHandler import getSqlConnection
+    mycursor = getSqlConnection().mydbConn.cursor()
+    mycursor.execute("INSERT INTO {table} ({strCols}) VALUES ({strValues});".format(table=tablename,
+                                                                                    strCols=strcols,
+                                                                                    strValues=strvalues))
+    getSqlConnection().mydbConn.commit()
 

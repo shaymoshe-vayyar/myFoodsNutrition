@@ -1,3 +1,4 @@
+import DatabaseHandler
 
 ## Constants
 __gram__ = 'gram'
@@ -23,16 +24,15 @@ nutNameList = ['חומצת שומן אולאית-אומגה 9',
        'כפיות סוככפיות סוכר', 'מתוכן סוכרים', 'פחמימות', 'חלבונים',
        'קלוריות']
 
-__dictHebNameToEngName__ = {
-    'אנרגיה'    :   __Cal__,
-    'מק"ג'      :   __microGram__,
-    'מ"ג'       :   __miliGram__,
-    'גרם'       :   __gram__,
-    'כפיות סוכר':   __tspn__
-}               # Partial List to be filled later on
-__dictEngNameToHebName__ = dict()
-for attr in __dictHebNameToEngName__:
-    __dictEngNameToHebName__[__dictHebNameToEngName__[attr]] = attr
+
+def LoadTermTranslationTables():
+    table_name = 'Eng_heb_terms'
+    keys_values = DatabaseHandler.loadAllRows(table_name, ['eng_name', 'heb_name'])
+    engHebDict = {keys_values[i][0]: keys_values[i][1] for i in range(len(keys_values))}
+    HebEngDict = {keys_values[i][1]: keys_values[i][0] for i in range(len(keys_values))}
+    return engHebDict, HebEngDict
+
+__dictEngNameToHebName__,__dictHebNameToEngName__ = LoadTermTranslationTables()
 
 __dictNutNameToUnitsForDisplay__ = {
     'קלוריות' : 'אנרגיה',
@@ -146,3 +146,6 @@ def debugPrintUniqueAttrInDataFrame(parsedItemExample,attrName):
         attrList.add(parsedItemExample[item][attrName])
     for attr in attrList:
         print("'{}' : ".format(attr))
+
+
+

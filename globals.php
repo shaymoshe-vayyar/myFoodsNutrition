@@ -65,7 +65,7 @@ if ((!array_key_exists($isSet, $_SESSION)) or (!$_SESSION[$isSet])) {
     mysqli_select_db($con,$_SESSION['database']);
 
     // Load Conversion Tables
-    $_SESSION['engNameToHebDict'] = readDictTable('conversion_eng_name_to_heb', $con);
+    $_SESSION['engNameToHebDict'] = readDictTable('eng_heb_terms', $con);
     $_SESSION['nutUnitsToDisplayDict'] = readDictTable('conversion_nut_units_to_display', $con);
     $_SESSION['nutWeightUnitsToStandardDict'] = readDictTable('conversion_units_to_standard', $con);
     $_SESSION['dailyNutritionGoalsDict'] = readDictTable('daily_nutrition_goals', $con);
