@@ -26,7 +26,7 @@ def GetListOfOptionalUrls(itemName):
         print('not from cache!')
         ch = psg.popup_yes_no(f"{itemName} not from Cache",
                               "Please Confirm")
-        if (ch != "yes"):
+        if (ch != "Yes"):
             raise Exception(f'{itemName} not from cache')
     soup = BeautifulSoup(r.text, 'html.parser')
 

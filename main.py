@@ -1,11 +1,11 @@
 import DatabaseHandler
 
 # App 0
-import createBasicTablesDB
-createBasicTablesDB.createEngHebTermsTableDB()
-createBasicTablesDB.createNutValuesTableDB()
-createBasicTablesDB.createNutUnitsToDisplayTableDB()
-createBasicTablesDB.createDailyNutGoalsTableDB()
+# import createBasicTablesDB
+# createBasicTablesDB.createEngHebTermsTableDB()
+# createBasicTablesDB.createNutValuesTableDB()
+# createBasicTablesDB.createNutUnitsToDisplayTableDB()
+# createBasicTablesDB.createDailyNutGoalsTableDB()
 
 # App1
 # Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
@@ -17,7 +17,6 @@ HandleItemsAndNutValuesDBs.GuiFoodData()
 # App2
 # Recreate DBs: ItemNutValues, Empty Daily items, conversion tables (eng-heb names, units), display_units_per_nut_type, nut values goals nad UL,
 # Host can be 'pc' or 'web'
-HandleItemsAndNutValuesDBs.createDBNutUnitsForDisplay()
 
 # TODO:
 # Add tables of eng translation from CSV

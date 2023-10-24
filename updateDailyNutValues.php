@@ -42,12 +42,21 @@ while ($row = mysqli_fetch_array($resultDailyItems)) {
     $meal = $row[2];
     $sqlItemNut = "SELECT * FROM `db_items_nut` WHERE itemName='" . $itemName."';";
     $resultItemNut = mysqli_query($con, $sqlItemNut);
-    $list = mysqli_fetch_array($resultItemNut);
+    $list = mysqli_fetch_array($resultItemNut,MYSQLI_NUM);
     //printf("item=%s, quantity=%d, meal=%s, count(list)=%d, list[0]=%s",$itemName, $quantity,$meal, count($list),$list[0]);
     //echo PHP_EOL;
+
     $totalQuantityInGram += $quantity;
-    for ($ii = 0; $ii < count($arrNutValues); $ii++) {
-        $arrNutValues[$arrColsNames[$ii]] += $list[$ii]*$quantity/100;
+    // $arrColsNames length is one less than $list as it does not include the 'itemName' column.
+    for ($ii = 0; $ii < count($arrColsNames); $ii++) {
+        if ($list[$ii]>0)
+        {
+            $arrNutValues[$arrColsNames[$ii]] += $list[$ii]*$quantity/100;
+        }
+        else
+        {
+            $arrNutValues[$arrColsNames[$ii]] += 0;
+        }
     }
 
     echo "<li>{$itemName} {$quantity} גרם </li>";

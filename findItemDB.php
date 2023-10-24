@@ -28,7 +28,7 @@ if ($isFull == '1') {
 //    }
 }
 else {
-    $sql = "SELECT itemName,Calories FROM `db_items_nut` WHERE itemName LIKE '" . $q . "%';";
+    $sql = "SELECT itemName,Energy FROM `db_items_nut` WHERE itemName LIKE '" . $q . "%';";
     $result = mysqli_query($con, $sql);
 
     while ($row = mysqli_fetch_array($result)) {
