@@ -31,7 +31,9 @@
   <script src ="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js"></script>
   <link rel ="stylesheet" href ="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
   <link rel ="stylesheet" href ="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
-  <!--   Bootstraps ] -->
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css'  as="style" onload="this.onload=null;this.rel='stylesheet'">
+<!--    <script src="https://kit.fontawesome.com/dbe437d295.js" crossorigin="anonymous"></script>-->
+    <!--   Bootstraps ] -->
 
   <!-- Script -->
   <script>
@@ -106,7 +108,7 @@
         <br>
         <br>
 
-        <div id="nutDataDiv"></div>
+    <div id="nutDataDiv"></div>
         <br>
         <br>
     </div>
@@ -114,7 +116,18 @@
 <br>
 
   <script>
-
+      // window.onload = function () {
+      //     var span = document.createElement('span');
+      //
+      //     // <i class="fa-regular fa-pen-to-square"></i>
+      //     span.className = 'fa';
+      //     span.style.display = 'none';
+      //     document.body.insertBefore(span, document.body.firstChild);
+      //
+      //     alert(window.getComputedStyle(span, null).getPropertyValue('font-family'));
+      //
+      //     document.body.removeChild(span);
+      // };
 function docLoaded()
 {
     dateToAdd = document.getElementById("picker").value;

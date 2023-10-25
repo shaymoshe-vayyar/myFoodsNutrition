@@ -35,7 +35,7 @@ while($row = mysqli_fetch_array($resultCol)){
 $totalQuantityInGram = 0;
 $sqlDailyItems = "SELECT itemName,quantity,mealTimeSlot FROM `db_daily_items` WHERE date='" . $date."';";
 $resultDailyItems = mysqli_query($con, $sqlDailyItems);
-echo '<ul dir="rtl">';
+//echo '<ul dir="rtl">';
 while ($row = mysqli_fetch_array($resultDailyItems)) {
     $itemName = $row[0];
     $quantity = $row[1];
@@ -59,9 +59,19 @@ while ($row = mysqli_fetch_array($resultDailyItems)) {
         }
     }
 
-    echo "<li>{$itemName} {$quantity} גרם </li>";
+//    echo "<li style='display: inline;'>
+//        <i class='fa fa-edit' style='float-left;justify-content: left; justify-self: self-start;' dir='ltr'></i>
+//        <i class='fa fa-times' style='float-left;'></i>
+//        {$itemName} {$quantity} גרם
+//        </li>";
+    echo '<div class="w3-row" style="background-color: grey;" >
+        <i class="fa fa-times w3-large w3-cell w3-left" style="padding: 5px"></i>
+        <i class="fa fa-edit w3-large w3-cell w3-left" style="padding: 5px"></i>
+        <p class="w3-cell w3-large w3-right">'.$itemName.' '.$quantity.' גרם</p> 
+        </div>';
 }
-echo '</ul>';
+//echo '</ul>';
+echo '<br><br>';
 
 $arrColsNamesToDisplay = [];
 $arrNutValuesToDisplay = [];

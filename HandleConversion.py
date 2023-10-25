@@ -26,7 +26,7 @@ nutNameList = ['חומצת שומן אולאית-אומגה 9',
 
 
 def LoadTermTranslationTables():
-    table_name = 'Eng_heb_terms'
+    table_name = 'eng_heb_terms'
     keys_values = DatabaseHandler.loadAllRows(table_name, ['eng_name', 'heb_name'])
     engHebDict = {keys_values[i][0]: keys_values[i][1] for i in range(len(keys_values))}
     HebEngDict = {keys_values[i][1]: keys_values[i][0] for i in range(len(keys_values))}

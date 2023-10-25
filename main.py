@@ -1,7 +1,7 @@
 import DatabaseHandler
 
 # App 0
-# import createBasicTablesDB
+import createBasicTablesDB
 # createBasicTablesDB.createEngHebTermsTableDB()
 # createBasicTablesDB.createNutValuesTableDB()
 # createBasicTablesDB.createNutUnitsToDisplayTableDB()
@@ -19,19 +19,11 @@ HandleItemsAndNutValuesDBs.GuiFoodData()
 # Host can be 'pc' or 'web'
 
 # TODO:
-# Add tables of eng translation from CSV
 #
-# ***Done*** Add url link per name and store in a table
-#
-# Fix פחמימות
-# לתקן נתרן
-# להוסיף תרגום מדוייק מעברית, לתקן שפחמימות ומתוכן סוכרים מתרגם לאותה מילה באנגלית
-# האם לעשות את הדיפולט NULLאו אפס
 #
 # Create all tables from Python
 #
 # Nutrition table
-# Add defaults to all Nut cols.
 #
 #
 # Fix webpage - add change and remove for items, add תפריט view, add iphone audio commands - מחק שורה, הכנס

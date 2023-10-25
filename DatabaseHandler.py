@@ -44,9 +44,9 @@ def closeConn():
 def setHost(cur_host : Literal['pc','web'], hostName : Literal['pc','web']):
     if (cur_host != hostName):
         closeConn()
-        cur_host = hostName
+        __host__ = hostName
         openConn()
-    return cur_host
+    return __host__
 
 # Connection is stayed open as long the python is alive and closed upon Python ends
 ## 2 types of SQL tables:
