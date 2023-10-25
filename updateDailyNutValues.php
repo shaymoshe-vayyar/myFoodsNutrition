@@ -33,13 +33,14 @@ while($row = mysqli_fetch_array($resultCol)){
 
 // Fetch daily items
 $totalQuantityInGram = 0;
-$sqlDailyItems = "SELECT itemName,quantity,mealTimeSlot FROM `db_daily_items` WHERE date='" . $date."';";
+$sqlDailyItems = "SELECT itemName,quantity,mealTimeSlot,indexCol FROM `db_daily_items` WHERE date='" . $date."' ORDER BY indexCol DESC;";
 $resultDailyItems = mysqli_query($con, $sqlDailyItems);
 //echo '<ul dir="rtl">';
 while ($row = mysqli_fetch_array($resultDailyItems)) {
     $itemName = $row[0];
     $quantity = $row[1];
     $meal = $row[2];
+    $indexCol = $row[3];
     $sqlItemNut = "SELECT * FROM `db_items_nut` WHERE itemName='" . $itemName."';";
     $resultItemNut = mysqli_query($con, $sqlItemNut);
     $list = mysqli_fetch_array($resultItemNut,MYSQLI_NUM);
@@ -64,9 +65,11 @@ while ($row = mysqli_fetch_array($resultDailyItems)) {
 //        <i class='fa fa-times' style='float-left;'></i>
 //        {$itemName} {$quantity} גרם
 //        </li>";
+    $strText1 = "'{$itemName} {$quantity} גרם '";
+    $strText2 = "'{$itemName}'";
     echo '<div class="w3-row" style="background-color: grey;" >
-        <i class="fa fa-times w3-large w3-cell w3-left" style="padding: 5px"></i>
-        <i class="fa fa-edit w3-large w3-cell w3-left" style="padding: 5px"></i>
+        <i class="fa fa-times w3-large w3-cell w3-left" style="padding: 5px" onclick="removeItemFromDaily('.$indexCol.','.$strText1.')"></i>
+        <i class="fa fa-edit w3-large w3-cell w3-left" style="padding: 5px" onclick="editItemFromDaily('.$indexCol.','.$strText2.','.$quantity.')"></i>
         <p class="w3-cell w3-large w3-right">'.$itemName.' '.$quantity.' גרם</p> 
         </div>';
 }

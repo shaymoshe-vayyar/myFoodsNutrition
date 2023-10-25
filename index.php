@@ -80,6 +80,7 @@
                             },
                             defaultDate : new Date()});
                         $("#picker").on("dp.change", function (e) {
+                            updateTables();
                             $('#qr').focus();
                         });
                     });
@@ -128,7 +129,7 @@
       //
       //     document.body.removeChild(span);
       // };
-function docLoaded()
+function updateTables()
 {
     dateToAdd = document.getElementById("picker").value;
     var xmlhttp = new XMLHttpRequest();
@@ -143,7 +144,11 @@ function docLoaded()
     xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd, true);
 
     xmlhttp.send();
+}
 
+function docLoaded()
+{
+    updateTables();
     $('#qr').focus();
 }
 function isMobile() {
@@ -255,7 +260,7 @@ function updateQRSuggestions() {
 }
 function qrSearchSubmitted() {
     // if (e.key === 'Enter' || e.keyCode === 13) {
-    // console.log('submitted');
+    //console.log('submitted');
     itemToAdd = $('#qr').data('selItem');
     //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
     dateToAdd = document.getElementById("picker").value;
@@ -268,7 +273,10 @@ function qrSearchSubmitted() {
         //console.log(this.status); //
         if (this.readyState == 4 && this.status == 200) {
             // console.log(this.responseText);
-            document.getElementById('blabla').textContent = this.responseText;
+            //document.getElementById('blabla').textContent = this.responseText;
+            //console.log('updating table');
+            updateTables();
+            document.getElementById("qr").value = '';
         }
     };
     xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
@@ -277,5 +285,50 @@ function qrSearchSubmitted() {
     // }
 }
 
+    function removeItemFromDaily(itemIndex,strTxt)
+    {
+        //console.log("remove "+itemIndex);
+        retValue = confirm("האם אתה בטוח שתרצה להסיר את המוצר הבא?\n"+strTxt);
+        if (retValue == true) // Remove
+        {
+            var xmlhttp = new XMLHttpRequest();
+            xmlhttp.onreadystatechange = function () {
+                //console.log(this.readyState); //
+                //console.log(this.status); //
+                if (this.readyState == 4 && this.status == 200) {
+                    // console.log(this.responseText);
+                    //console.log('updating table');
+                    // console.log('delete');
+                    updateTables();
+                }
+            };
+            xmlhttp.open("GET", "removeDailyItemDB.php?itemIndex=" + itemIndex, true);
+
+            xmlhttp.send();
+        }
+    }
+      function editItemFromDaily(itemIndex,strTxt,quantity)
+      {
+          // console.log("edit "+itemIndex);
+          newQuantity = prompt(strTxt+" [גרם] ",quantity.toString());
+          if (newQuantity != null) // Do the edit
+          {
+              // console.log("edit "+itemIndex+" = "+newQuantity);
+              var xmlhttp = new XMLHttpRequest();
+              xmlhttp.onreadystatechange = function () {
+                  //console.log(this.readyState); //
+                  //console.log(this.status); //
+                  if (this.readyState == 4 && this.status == 200) {
+                      // console.log(this.responseText);
+                      //console.log('updating table');
+                      // console.log('delete');
+                      updateTables();
+                  }
+              };
+              xmlhttp.open("GET", "updateDailyItemDB.php?itemIndex=" + itemIndex + "&newQuantity=" + newQuantity, true);
+
+              xmlhttp.send();
+          }
+      }
   </script>
 </body>

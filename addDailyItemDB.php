@@ -5,6 +5,10 @@
 //   ALTER TABLE `db_daily_items` ADD INDEX(`date`);
 
 $itemName = $_GET['item'];
+if (strlen($itemName) == 0)
+{
+    return;
+}
 //$itemName = 'מלפפון';
 $date = $_GET['date'];
 $quantity = $_GET['quantity'];
