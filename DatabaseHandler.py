@@ -42,6 +42,7 @@ def closeConn():
 
 # External
 def setHost(cur_host : Literal['pc','web'], hostName : Literal['pc','web']):
+    __host__ = cur_host
     if (cur_host != hostName):
         closeConn()
         __host__ = hostName

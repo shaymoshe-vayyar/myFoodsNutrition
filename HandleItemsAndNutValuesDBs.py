@@ -20,6 +20,12 @@ import globalContants as gc
 # Internal
 def GetListOfOptionalUrls(itemName):
     baseQrUrl = fr'https://www.google.com/search?q=site:foodsdictionary.co.il'+urllib.parse.quote(f' {itemName} ערך תזונתי ')
+    searchCategory = 'Products'
+    searchKeyWords = 'ערכים תזונתיים'
+    if itemName.find('מתכון') >= 0:
+        searchCategory = 'Recipes'
+        searchKeyWords = 'מתכון'
+        baseQrUrl = fr'https://www.google.com/search?q=site:foodsdictionary.co.il'+urllib.parse.quote(f' {itemName} ')
     session = requests_cache.CachedSession('cacheUrlName')
     r = session.get(baseQrUrl)
     if (not r.from_cache):
@@ -33,20 +39,22 @@ def GetListOfOptionalUrls(itemName):
     aElement = soup.find_all('a')
     urls = list()
     for item in aElement:
-        if (item.attrs['href']).__contains__('Products') == False:
+        if (item.attrs['href']).__contains__(searchCategory) == False:
             continue
         itemText = item.getText(';')
-        if itemText.__contains__('ערכים תזונתיים') == False:
+        if (itemText.__contains__(searchKeyWords) == False) and (itemText.__contains__('ערך תזונתי')==False):
             continue
         arrTxt = itemText.split(';')
         selTxt = ''
         for txt in arrTxt:
-            if txt.__contains__('ערכים תזונתיים'):
-                selTxt = txt
+            if txt.__contains__(searchKeyWords) or txt.__contains__('ערך תזונתי'):
+                selTxt = txt.replace('FoodsDictionary','')
         href = item.attrs['href']
-        qq = href[href.find(r'Products/'):href.find(r'&')]
+        qq = href[href.find(searchCategory+r'/'):href.find(r'&')]
         qa = (qq[qq.rfind('/') + 1:])
         name = urllib.parse.unquote(qa.replace('%25','%'))
+        if (name.isnumeric()):
+            name = selTxt
         urls.append([name,href,selTxt])
     return urls
 

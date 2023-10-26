@@ -54,13 +54,19 @@ def ParseUrl(url):
                 tmp = nutUnits
                 nutUnits = nutNameWOUnits
                 nutNameWOUnits = tmp
-            nutValue = nutDataEnt[1].text.strip()
+            nutValue = nutDataEnt[-1].text.strip()
             if (nutValue is None) or (len(nutValue)==0):
                 nutValue = 0
 
             if (nutNameWOUnits.find(__ignoreNut__)>=0):
                 continue
 
+            if (nutNameWOUnits == 'ויטמין B'):
+                nutNameWOUnits = 'סה"כ ויטמין B'
+            if (nutNameWOUnits == 'ויטמין B3'):
+                nutNameWOUnits = "ויטמין B3 - ניאצין"
+            if (nutNameWOUnits == 'מתוכם שומן טראנס'):
+                continue  # ignore
             EngNutName =HandleConversion.__dictHebNameToEngName__[nutNameWOUnits]
             # HandleConversion.__dictEngNameToHebName__[EngNutName] = nutNameWOUnits
             # HandleConversion.__dictHebNameToEngName__[nutNameWOUnits] = EngNutName

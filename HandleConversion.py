@@ -126,6 +126,7 @@ def convertNutName(orgName):
 def convertUnitToStandard(orgValueStr, orgUnits):
     units = __dictHebNameToEngName__[orgUnits]
     # Conver to gram if relevant
+    orgValueStr = orgValueStr.replace(',','')
     value = float(orgValueStr)
     if (GramConversionTable.__contains__(units)):
         value = GramConversionTable[units]*value

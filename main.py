@@ -7,6 +7,12 @@ import createBasicTablesDB
 # createBasicTablesDB.createNutUnitsToDisplayTableDB()
 # createBasicTablesDB.createDailyNutGoalsTableDB()
 
+###
+import foodsdicParsing
+# foodsdicParsing.ParseUrl('https://www.foodsdictionary.co.il/Recipes/12533')
+
+###
+
 # App1
 # Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
 # Then allow the user to select the item, change item name and it will be stored in the DB
