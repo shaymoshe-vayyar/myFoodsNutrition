@@ -80,7 +80,7 @@ def updateItemToDb(itemName,itemUrl,itemDesc):
     # Update links Table
     #check if exists
     if not DatabaseHandler.checkIfTableExists(gc.__tableSourcesLinksName__):
-        DatabaseHandler.CreateTable(gc.__tableSourcesLinksName__,gc.__tableSourceLinksColNamesNTypes__)
+        DatabaseHandler.CreateTable(gc.__tableSourcesLinksName__,gc.__tableSourceLinksColNamesNTypes__,PrimaryKeyName='item_name')
     # Check if item already exists
     retItem = DatabaseHandler.getItem(gc.__tableSourcesLinksName__,'item_name',itemName)
     isExistsAndTheSame = False

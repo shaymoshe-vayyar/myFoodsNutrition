@@ -27,7 +27,10 @@ HandleItemsAndNutValuesDBs.GuiFoodData()
 # Nutrition table
 #
 #
-# Fix webpage - add change and remove for items, add תפריט view, add iphone audio commands - מחק שורה, הכנס
-#
+# Fix מכניס פעמיים - מחק שורה, הכנס
+# Add option to select from multiple matches
+# Find similar match (2 words inserted with one word can be inbetween, different order)
+# Add different views
+# Add last inserted items for last hour
 #
 # Add DB From USDA
