@@ -71,6 +71,8 @@ def ParseUrl(url : str):
                 nutNameWOUnits = "ויטמין B3 - ניאצין"
             if (nutNameWOUnits == 'מתוכם שומן טראנס'):
                 continue  # ignore
+            if (nutNameWOUnits == 'אלכוהול'):
+                continue # ignore
             EngNutName =HandleConversion.__dictHebNameToEngName__[nutNameWOUnits]
             # HandleConversion.__dictEngNameToHebName__[EngNutName] = nutNameWOUnits
             # HandleConversion.__dictHebNameToEngName__[nutNameWOUnits] = EngNutName

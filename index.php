@@ -162,6 +162,17 @@ if (isMobile()) {
 //  console.log("Desktop device detected");
 //  document.getElementById("myH").innerHTML = "Desktop";
 }
+
+function clearQR()
+{
+    document.getElementById("qr").value = '';
+    document.getElementById("qrpopover").innerHTML = '';
+    $('#qr').data('selItem','');
+    $('#qr').data('quantity',0);
+    $('#qrpopover').hide();
+}
+
+
 function updateQRSuggestions() {
     //console.log('hello')
     //alert('hello')
@@ -180,12 +191,7 @@ function updateQRSuggestions() {
         numbersInStr = dropDownText.match(/\b(\d+\.?\d?)\b/g)
         engWordsInStr = dropDownText.match(/\b[^\d\W]+\b/g)
         hebWordsInStr = dropDownText.match(/[\u0590-\u05FF]+/g)
-        if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
-        {
-            // console.log('------------------------------');
-            // console.log(hebWordsInStr.join(' ')); //
-            // console.log('------------------------------');
-        }
+
         numDesiredQuantity = 100;
         if ((numbersInStr != null) && (numbersInStr.length>0)) {
             if (numbersInStr.length > 1)
@@ -202,6 +208,21 @@ function updateQRSuggestions() {
         }
         if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
         {
+            retAtTheEnd = false;
+            if (hebWordsInStr.join(' ').includes('מחק שורה'))
+            {
+                // console.log(hebWordsInStr.join(' ').includes('מחק שורה'));
+                clearQR();
+                return;
+            }
+            if (hebWordsInStr.includes('הכנס'))
+            {
+                // console.log(hebWordsInStr.join(' '));
+                hebWordsInStr = hebWordsInStr.filter(hebWordsInStr =>  hebWordsInStr != 'הכנס');
+                // console.log(hebWordsInStr.join(' '));
+                retAtTheEnd = true;
+            }
+
             //const mypopover = document.getElementById("qrpopover");
 
             //mypopover.style.top = '100px';
@@ -231,6 +252,10 @@ function updateQRSuggestions() {
                                   //console.log("data="+$('#qr').data('selItem'));
                                   $('#qr').data('selItem',name);
                                   $('#qr').data('quantity',numDesiredQuantity);
+                                  if (retAtTheEnd)
+                                  {
+                                      qrSearchSubmitted();
+                                  }
                               }
                           }
                       }
@@ -252,9 +277,10 @@ function updateQRSuggestions() {
         }
         else
         {
-            document.getElementById("qrpopover").innerHTML = '';
-            $('#qr').data('selItem','');
-            $('#qr').data('quantity',0);
+            //clearQR();
+             document.getElementById("qrpopover").innerHTML = '';
+             $('#qr').data('selItem','');
+             $('#qr').data('quantity',0);
         }
     }
 }
@@ -276,6 +302,7 @@ function qrSearchSubmitted() {
             //document.getElementById('blabla').textContent = this.responseText;
             //console.log('updating table');
             updateTables();
+            //clearQR();
             document.getElementById("qr").value = '';
             document.getElementById("qrpopover").innerHTML = '';
             $('#qr').data('selItem','');
