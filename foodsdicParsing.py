@@ -22,17 +22,21 @@ def ParseAndFormat(nameOrUrl):
 
     return parsedItem
 
-def ParseUrl(url):
-    if __flagChachingSite__:
-        session = requests_cache.CachedSession('cacheUrlName')
-        r = session.get(url)
-        if not r.from_cache:
-            print(f'{url} not from cache!')
+def ParseUrl(url : str):
+    if (url.find('http') < 0) and (url.lower().startswith('c:\\')):  # Local
+        with open(url, 'r',encoding='windows-1255') as f:
+            textToParse = f.read()
     else:
-        session = requests.session()
-        r = session.get(url)
+        if __flagChachingSite__:
+            session = requests_cache.CachedSession('cacheUrlName')
+            r = session.get(url)
+            if not r.from_cache:
+                print(f'{url} not from cache!')
+        else:
+            session = requests.session()
+            r = session.get(url)
+        textToParse = r.text
 
-    textToParse = r.text
     soup = BeautifulSoup(textToParse, 'html.parser')
     table = soup.find('table', class_='nv-table')
     nutValueTableRows = dict()

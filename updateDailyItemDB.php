@@ -8,7 +8,7 @@ $itemIndex = $_GET['itemIndex'];
 $newQuantity = $_GET['newQuantity'];
 
 include 'globals.php';
-$con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
+//$con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
 
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));

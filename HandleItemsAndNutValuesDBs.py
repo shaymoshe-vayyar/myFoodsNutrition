@@ -15,10 +15,27 @@ import urllib.parse
 import DatabaseHandler
 
 import globalContants as gc
+import glob
+
 
 
 # Internal
-def GetListOfOptionalUrls(itemName):
+def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
+    stringsToRemove = ['FoodsDictionary','- FoodsDictionary','ערכים תזונתיים',', ערכים תזונתיים','.html','ערך תזונתי של','ערך תזונתי',',','-']
+    if (isMyRecipe):
+        myRecipesFolder = r'C:\Users\ShayMoshe\Downloads\MyRecipes'
+        files = glob.glob(f'{myRecipesFolder}\\*{itemName}*.html')
+        urls = list()
+        for file in files:
+            name = file[file.rfind('\\')+1:]
+            for strToRemove in stringsToRemove:
+                name = name.replace(strToRemove, '')
+            name = name.strip()
+            href = file
+            print(name)
+            urls.append([name, href, name])
+        return urls
+
     baseQrUrl = fr'https://www.google.com/search?q=site:foodsdictionary.co.il'+urllib.parse.quote(f' {itemName} ערך תזונתי ')
     searchCategory = 'Products'
     searchKeyWords = 'ערכים תזונתיים'
@@ -64,17 +81,44 @@ def updateItemToDb(itemName,itemUrl,itemDesc):
     #check if exists
     if not DatabaseHandler.checkIfTableExists(gc.__tableSourcesLinksName__):
         DatabaseHandler.CreateTable(gc.__tableSourcesLinksName__,gc.__tableSourceLinksColNamesNTypes__)
-    DatabaseHandler.addItem(gc.__tableSourcesLinksName__,list(gc.__tableSourceLinksColNamesNTypes__.keys()),[itemName, itemUrl, itemDesc])
+    # Check if item already exists
+    retItem = DatabaseHandler.getItem(gc.__tableSourcesLinksName__,'item_name',itemName)
+    isExistsAndTheSame = False
+    if len(retItem) > 0:  # Already exists - check that info is the same
+        if (retItem[0][0]==itemName and retItem[0][1]==itemUrl and retItem[0][2]==itemDesc):
+            # Same parameters -> ignore
+            isExistsAndTheSame = True
+            print (f'{itemName} already exists')
+        else:
+            raise Exception(f"'{itemName}' already exists with different values")
+    if not isExistsAndTheSame:
+        DatabaseHandler.addItem(gc.__tableSourcesLinksName__,list(gc.__tableSourceLinksColNamesNTypes__.keys()),[itemName, itemUrl, itemDesc])
     import foodsdicParsing
     parsedItem = foodsdicParsing.ParseUrl(itemUrl)
     parsedItem[gc.__tableItemsNutValuesItemName__] = itemName
-    DatabaseHandler.addItem(gc.__tableItemsNutValuesTableName__,list(parsedItem.keys()),list(parsedItem.values()))
+
+    # Check if item already exists
+    retItem = DatabaseHandler.getItem(gc.__tableItemsNutValuesTableName__,gc.__tableItemsNutValuesItemName__,itemName,list(parsedItem.keys()))
+    if len(retItem) > 0:
+        from math import isclose
+        # Check if items are the same
+        for val1,val2 in zip(list(parsedItem.values()),retItem[0]):
+            val1 = float(val1)
+            val2 = float(val2)
+            if not isclose(val1, val2, rel_tol=1e-3):
+                raise Exception(f"Trying to update table '{gc.__tableItemsNutValuesTableName__}', with already existing item '{itemName}', where valOld={val1}, valNew={val2}")
+            else:
+                print(f'Item {itemName} already exists in table - no change')
+                return True, True
+    else:
+        DatabaseHandler.addItem(gc.__tableItemsNutValuesTableName__,list(parsedItem.keys()),list(parsedItem.values()))
     print(parsedItem)
+    return True,False
 
 def GuiFoodData():
     psg.set_options(font=("Arial Bold", 14),text_justification="right")
     lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
-    toprow = ['קלוריות', 'קישור', 'שם המוצר']
+    toprow = ['פרטים נוספים', 'קישור', 'שם המוצר']
     rows = [[]]
     tbl1 = psg.Table(values=rows, headings=toprow,
                      auto_size_columns=True,
@@ -86,9 +130,11 @@ def GuiFoodData():
                      expand_x=True,
                      expand_y=True,
                      enable_click_events=True)
-    layout = [[psg.Text('בחר מוצר')],
+    layout = [[psg.Text('המתכונים שלי'),psg.Checkbox('',key="_MyRecCB_"), psg.Text('בחר מוצר')],
               [psg.InputText('',enable_events=True,expand_x=True, key="_COMBOINPUT_")],
-              [psg.Button('Submit', visible=False, bind_return_key=True)],[tbl1]]
+              [psg.Button('Submit', visible=False, bind_return_key=True)],
+              [tbl1],
+              [psg.Text('',key='_StatusBar_')]]
     # [lst],
     window = psg.Window("הוספת מוצרים", layout, size=(1200, 800), resizable=True,element_justification="right",finalize=True)
     window["_COMBOINPUT_"].Widget.configure(justify="right")
@@ -96,11 +142,12 @@ def GuiFoodData():
 
     while True:
         event, values = window.read()
+
         # print("event:", event, "values:", values)
         if event == psg.WIN_CLOSED:
             break
         if event == "Submit":
-            urls = GetListOfOptionalUrls(values['_COMBOINPUT_'])
+            urls = GetListOfOptionalUrls(values['_COMBOINPUT_'],values['_MyRecCB_'])
             listNutForTable = []
             for item in urls:
                 name = item[0]
@@ -116,13 +163,22 @@ def GuiFoodData():
             selRow = event[2][0]
             selItem = tbl1.get()[selRow]
             itemName = selItem[2]
-            urlItem = selItem[1][selItem[1].find('http'):]
+            if values['_MyRecCB_']:
+                urlItem = selItem[1]
+            else:
+                urlItem = selItem[1][selItem[1].find('http'):]
             itemDesc = selItem[0]
             # ch = psg.popup_yes_no("You clicked row:{}, selected Item:{}, continue?".format(event[2][0], selItem[2]),"Please Confirm")
             itemName = psg.popup_get_text('בחר שם למוצר', title="אנא אשר", default_text=f'{itemName}')
 
             if itemName is not None:
-                updateItemToDb(itemName,urlItem,itemDesc)
+                updateItemRes = updateItemToDb(itemName,urlItem,itemDesc)
+                if (updateItemRes[1]):
+                    updateStsText = "כבר קיים"
+                else:
+                    updateStsText = "עודכן"
+                    # window['_StatusBar_'].update(f"' עודכן {itemName}'")
+                window['_StatusBar_'].update(f"{itemName}' {updateStsText}'")
                 print(f"'{itemName}' Updated!")
 
     window.close()

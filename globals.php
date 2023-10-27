@@ -32,6 +32,7 @@ if (!is_session_started()) {
     session_start();
 }
 $isSet = 'isSet';
+$conStr = 'connection';
 
 // TODO: Comment
 $_SESSION[$isSet] = False;
@@ -58,11 +59,20 @@ if ((!array_key_exists($isSet, $_SESSION)) or (!$_SESSION[$isSet])) {
     }
 
     // Establish DB Connection to read tables
-    $con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
-    if (!$con) {
-        die('Could not connect: ' . mysqli_error($con));
+    if (array_key_exists($conStr,$_SESSION) and !$_SESSION[$conStr] and mysqli_ping($_SESSION[$conStr]))
+    {
+        $con = $_SESSION[$conStr];
     }
-    mysqli_select_db($con,$_SESSION['database']);
+    else
+    {
+        $con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
+        if (!$con) {
+            die('Could not connect: ' . mysqli_error($con));
+        }
+        mysqli_select_db($con,$_SESSION['database']);
+        $_SESSION[$conStr] = $con;
+    }
+
 
     // Load Conversion Tables
     $_SESSION['engNameToHebDict'] = readDictTable('eng_heb_terms', $con);

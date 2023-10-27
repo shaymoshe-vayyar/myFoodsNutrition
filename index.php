@@ -277,6 +277,10 @@ function qrSearchSubmitted() {
             //console.log('updating table');
             updateTables();
             document.getElementById("qr").value = '';
+            document.getElementById("qrpopover").innerHTML = '';
+            $('#qr').data('selItem','');
+            $('#qr').data('quantity',0);
+            $('#qrpopover').hide();
         }
     };
     xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);

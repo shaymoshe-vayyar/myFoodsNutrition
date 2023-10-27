@@ -8,7 +8,7 @@ $q = $_GET['q'];
 $isFull = $_GET['isFull'];
 
 include 'globals.php';
-$con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
+//$con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
 if (!$con) {
     die('Could not connect: ' . mysqli_error($con));
 }
@@ -38,5 +38,5 @@ else {
 
 }
 
-mysqli_close($con);
+//mysqli_close($con);
 ?>
