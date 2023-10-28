@@ -71,6 +71,8 @@ def ParseUrl(url : str):
                 nutNameWOUnits = "ויטמין B3 - ניאצין"
             if (nutNameWOUnits == 'מתוכם שומן טראנס'):
                 continue  # ignore
+            if (nutNameWOUnits == 'אלכוהול'):
+                continue  # ignore
             if (nutNameWOUnits == 'נחושת'):
                 continue # ignore
             if (nutNameWOUnits == 'תראונין'):
