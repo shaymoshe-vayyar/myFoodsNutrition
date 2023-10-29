@@ -14,6 +14,9 @@
 <!--https://firstclicklimited.com/tutorials/index.php/2021/08/04/html-dropdown-with-text-input/-->
 <!--https://stackoverflow.com/questions/17929356/html-datalist-values-from-array-in-javascript-->
 <!--https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/input_event-->
+
+<!--https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container-->
+
 <html lang="he" style="font-size: 16px;">
 <head>
     <meta content="charset=utf-8; text/html" http-equiv="Content-Type">
@@ -103,8 +106,8 @@
         <br>
         <br>
         <div class="w3-row" style="background-color: darkslategrey;">
-            <button class="w3-cell w3-button w3-left" style="color: lightgrey;font-weight: bold" onclick="openCity('London')">תפריט מוצרים</button>
-            <button class="w3-cell w3-button w3-right" style="color: lightgrey;font-weight: bold" onclick="openCity('Paris')">טבלת ערכים</button>
+            <button class="w3-cell w3-button w3-left" style="color: lightgrey;font-weight: bold" onclick="switchButton(this)" id='butBrief'>תקציר</button>
+            <button class="w3-cell w3-button w3-right" style="color: lightgrey;font-weight: bold" onclick="switchButton(this)" id='butFull'>מלא</button>
         </div>
         <br>
         <br>
@@ -361,5 +364,21 @@ function qrSearchSubmitted() {
               xmlhttp.send();
           }
       }
+function clearButtons(list)
+{
+    for (let bElem of list) {
+        bElem.style.backgroundColor='#FFFFFF';
+        bElem.style.color='#000000';
+        console.log(bElem.id);
+    }
+}
+function switchButton(buttonElement)
+{
+    console.log(buttonElement.id);
+    let list = buttonElement.parentElement.children;
+    clearButtons(list);
+    buttonElement.style.backgroundColor = 'lightgreen';
+    buttonElement.style.color = 'gray';
+}
   </script>
 </body>

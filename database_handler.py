@@ -8,8 +8,7 @@ from typing import Literal, List
 
 class SqlConnection(object):
     _sql_host_ = ['pc']
-    _sql_connection_ = dict(pc=mysql.connector.connection_cext.CMySQLConnection(),
-                            web=mysql.connector.connection_cext.CMySQLConnection())
+    _sql_connection_ = {'pc':None,'web':None}
     _sql_cursor_ = {'pc':None,'web':None}
 
     # parameterized constructor
@@ -66,12 +65,16 @@ class SqlConnection(object):
                 prev_result = result
             else:
                 assert(prev_result == result)
+        self.__close_connection_if_open__()
         return result
 
     def commit(self):
         self.__open_connection_if_none__()
         for host in self._sql_host_:
             self._sql_connection_[host].commit()
+
+        self.__close_connection_if_open__()
+
     def close(self):
         self.__close_connection_if_open__()
 
@@ -93,7 +96,7 @@ class SqlConnection(object):
 #   * Delete Table (including backup option)
 
 class DatabaseHandler(object):
-    _sql_connection_ = SqlConnection(['pc'])
+    _sql_connection_ = SqlConnection(['pc','web'])
     def __new__ (cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(DatabaseHandler, cls).__new__ (cls)

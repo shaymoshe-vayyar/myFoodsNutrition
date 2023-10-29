@@ -47,10 +47,10 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
     r = session.get(baseQrUrl)
     if (not r.from_cache):
         print('not from cache!')
-        ch = psg.popup_yes_no(f"{itemName} not from Cache",
-                              "Please Confirm")
-        if (ch != "Yes"):
-            raise Exception(f'{itemName} not from cache')
+        # ch = psg.popup_yes_no(f"{itemName} not from Cache",
+        #                       "Please Confirm")
+        # if (ch != "Yes"):
+        #     raise Exception(f'{itemName} not from cache')
     soup = BeautifulSoup(r.text, 'html.parser')
 
     aElement = soup.find_all('a')
@@ -161,25 +161,26 @@ def GuiFoodData():
             tbl1.update(listNutForTable)
         if '+CLICKED+' in event:
             selRow = event[2][0]
-            selItem = tbl1.get()[selRow]
-            itemName = selItem[2]
-            if values['_MyRecCB_']:
-                urlItem = selItem[1]
-            else:
-                urlItem = selItem[1][selItem[1].find('http'):]
-            itemDesc = selItem[0]
-            # ch = psg.popup_yes_no("You clicked row:{}, selected Item:{}, continue?".format(event[2][0], selItem[2]),"Please Confirm")
-            itemName = psg.popup_get_text('בחר שם למוצר', title="אנא אשר", default_text=f'{itemName}')
-
-            if itemName is not None:
-                updateItemRes = updateItemToDb(itemName,urlItem,itemDesc)
-                if (updateItemRes[1]):
-                    updateStsText = "כבר קיים"
+            if (selRow is not None) and (selRow >= 0):
+                selItem = tbl1.get()[selRow]
+                itemName = selItem[2]
+                if values['_MyRecCB_']:
+                    urlItem = selItem[1]
                 else:
-                    updateStsText = "עודכן"
-                    # window['_StatusBar_'].update(f"' עודכן {itemName}'")
-                window['_StatusBar_'].update(f"{itemName}' {updateStsText}'")
-                print(f"'{itemName}' Updated!")
+                    urlItem = selItem[1][selItem[1].find('http'):]
+                itemDesc = selItem[0]
+                # ch = psg.popup_yes_no("You clicked row:{}, selected Item:{}, continue?".format(event[2][0], selItem[2]),"Please Confirm")
+                itemName = psg.popup_get_text('בחר שם למוצר', title="אנא אשר", default_text=f'{itemName}')
+
+                if itemName is not None:
+                    updateItemRes = updateItemToDb(itemName,urlItem,itemDesc)
+                    if (updateItemRes[1]):
+                        updateStsText = "כבר קיים"
+                    else:
+                        updateStsText = "עודכן"
+                        # window['_StatusBar_'].update(f"' עודכן {itemName}'")
+                    window['_StatusBar_'].update(f"{itemName}' {updateStsText}'")
+                    print(f"'{itemName}' Updated!")
 
     window.close()
 
