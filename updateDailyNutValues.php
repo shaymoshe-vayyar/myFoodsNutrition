@@ -3,6 +3,7 @@
 // db_items_nut,
 
 $date = $_GET['date'];
+$displayType = $_GET['displayType'];
 
 include 'globals.php';
 $con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
@@ -104,7 +105,6 @@ foreach ($arrColsNames as $engNutName)
             $_SESSION['engNameToHebDict'][$unitToDisp]);
 }
 
-
 //echo '<table style="border:1; cellpadding:1; cellspacing:0; align:center; valign:top;" dir="rtl" class="nv-table text-center">';
 //echo '<div style="display: grid; justify-content=center;">';
 echo '<table dir="rtl"  width="100%"'; //justify-self: center; !important"
@@ -121,11 +121,14 @@ for ($ii = 0; $ii < count($arrNutValues); $ii++) {
     }
 //    echo "<br>".$arrColsNames[$ii]."=".$arrNutValues[$arrColsNames[$ii]]."</br>";
 //    echo '<tr><td>'.$arrColsNamesToDisplay[$ii].'</td><td><span>'.$arrNutValues[$arrColsNames[$ii]].$nutValueUnitConv[ii].'</span></td><td class="percentage-td"><div style="position: relative;height: 100%;"><div class="percent-bg" style="width: 100%;background-color: #dcd7d3 !important;"></div><div class="percent-bg" style="width: 100%;background-image: none;"></div><div class="percent-text" style="font-weight: bold;" title="">100%</div></div></td></tr>';
-    echo '<tr><td>'.$arrColsNamesToDisplay[$ii].'</td><td><span>'.
-        $arrNutValuesToDisplay[$ii]." ".$arrNutUnitsToDisplay[$ii].
-        '</span></td><td class="percentage-td"><div style="position: relative;height: 100%;"><div class="percent-bg" style="width: 100%;background-color: #dcd7d3 !important;"></div><div class="percent-bg" style="width: 100%;background-image: none;"></div><div class="percent-text" style="font-weight: bold;" title="">
+    if (($displayType == 'butFull') or (($percOfDRI < 90) and ($curDRIGoal >= 0)))
+    {
+        echo '<tr><td>'.$arrColsNamesToDisplay[$ii].'</td><td><span>'.
+            $arrNutValuesToDisplay[$ii]." ".$arrNutUnitsToDisplay[$ii].
+            '</span></td><td class="percentage-td"><div style="position: relative;height: 100%;"><div class="percent-bg" style="width: 100%;background-color: #dcd7d3 !important;"></div><div class="percent-bg" style="width: 100%;background-image: none;"></div><div class="percent-text" style="font-weight: bold;" title="">
     '.$percOfDRIToDisplay.'
     </div></div></td></tr>';
+    }
 //    echo '</div>';
 }
 

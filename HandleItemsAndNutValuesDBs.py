@@ -90,7 +90,8 @@ def updateItemToDb(itemName,itemUrl,itemDesc):
             isExistsAndTheSame = True
             print (f'{itemName} already exists')
         else:
-            raise Exception(f"'{itemName}' already exists with different values")
+            # raise Exception(f"'{itemName}' already exists with different values")
+            print(f"'{itemName}' already exists with different values")
     if not isExistsAndTheSame:
         DatabaseHandler().addItem(gc.__tableSourcesLinksName__,list(gc.__tableSourceLinksColNamesNTypes__.keys()),[itemName, itemUrl, itemDesc])
     import foodsdicParsing

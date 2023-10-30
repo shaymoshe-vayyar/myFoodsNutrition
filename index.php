@@ -105,7 +105,7 @@
         <br>
         <br>
         <br>
-        <div class="w3-row" style="background-color: darkslategrey;">
+        <div class="w3-row" style="background-color: darkslategrey;" id="divButtonsDisplay">
             <button class="w3-cell w3-button w3-left" style="color: lightgrey;font-weight: bold" onclick="switchButton(this)" id='butBrief'>תקציר</button>
             <button class="w3-cell w3-button w3-right" style="color: lightgrey;font-weight: bold" onclick="switchButton(this)" id='butFull'>מלא</button>
         </div>
@@ -144,7 +144,9 @@ function updateTables()
             document.getElementById('nutDataDiv').innerHTML = this.responseText;
         }
     };
-    xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd, true);
+    displayType = $('#divButtonsDisplay').data('selId');
+    //console.log("displayType="+displayType);
+    xmlhttp.open("GET", "updateDailyNutValues.php?date=" + dateToAdd + "&displayType="+displayType, true);
 
     xmlhttp.send();
 }
@@ -153,6 +155,7 @@ function docLoaded()
 {
     updateTables();
     $('#qr').focus();
+    $('#butBrief').click();
 }
 function isMobile() {
   const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
@@ -209,7 +212,7 @@ function updateQRSuggestions() {
                 // console.log('------------------------------');
             }
         }
-        if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) )
+        if ( (hebWordsInStr != null) && (hebWordsInStr.length > 0) && (hebWordsInStr[0].length > 0))
         {
             retAtTheEnd = false;
             if (hebWordsInStr.join(' ').includes('מחק שורה'))
@@ -250,7 +253,7 @@ function updateQRSuggestions() {
                               const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
                                //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
                               text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
-                              if (arrOptions.length == 2) // Only one suggestion
+                              if ((arrOptions.length == 2) && (numbersInStr != null) && (numbersInStr.length>0)) // Only one suggestion
                               {
                                   //console.log("data="+$('#qr').data('selItem'));
                                   $('#qr').data('selItem',name);
@@ -282,6 +285,7 @@ function updateQRSuggestions() {
         {
             //clearQR();
              document.getElementById("qrpopover").innerHTML = '';
+             $('#qrpopover').hide();
              $('#qr').data('selItem','');
              $('#qr').data('quantity',0);
         }
@@ -289,33 +293,37 @@ function updateQRSuggestions() {
 }
 function qrSearchSubmitted() {
     // if (e.key === 'Enter' || e.keyCode === 13) {
-    //console.log('submitted');
+    // console.log('submitted');
     itemToAdd = $('#qr').data('selItem');
     //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
     dateToAdd = document.getElementById("picker").value;
     quantity = $('#qr').data('quantity');
     mealTimeSlot = '';
     // console.log("itemToAdd=" + itemToAdd);
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.onreadystatechange = function () {
-        //console.log(this.readyState); //
-        //console.log(this.status); //
-        if (this.readyState == 4 && this.status == 200) {
-            // console.log(this.responseText);
-            //document.getElementById('blabla').textContent = this.responseText;
-            //console.log('updating table');
-            updateTables();
-            //clearQR();
-            document.getElementById("qr").value = '';
-            document.getElementById("qrpopover").innerHTML = '';
-            $('#qr').data('selItem','');
-            $('#qr').data('quantity',0);
-            $('#qrpopover').hide();
-        }
-    };
-    xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
+    // console.log("itemToAdd=" + itemToAdd+'quantity='+quantity);
+    if ((itemToAdd.length > 0) && quantity > 0)
+    {
+        var xmlhttp = new XMLHttpRequest();
+        xmlhttp.onreadystatechange = function () {
+            //console.log(this.readyState); //
+            //console.log(this.status); //
+            if (this.readyState == 4 && this.status == 200) {
+                // console.log(this.responseText);
+                //document.getElementById('blabla').textContent = this.responseText;
+                //console.log('updating table');
+                updateTables();
+                //clearQR();
+                document.getElementById("qr").value = '';
+                document.getElementById("qrpopover").innerHTML = '';
+                $('#qr').data('selItem','');
+                $('#qr').data('quantity',0);
+                $('#qrpopover').hide();
+            }
+        };
+        xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
 
-    xmlhttp.send();
+        xmlhttp.send();
+    }
     // }
 }
 
@@ -367,18 +375,22 @@ function qrSearchSubmitted() {
 function clearButtons(list)
 {
     for (let bElem of list) {
-        bElem.style.backgroundColor='#FFFFFF';
-        bElem.style.color='#000000';
-        console.log(bElem.id);
+        bElem.style.backgroundColor='darkslategrey';
+        bElem.style.color='white';
+        //console.log(bElem.id);
     }
 }
 function switchButton(buttonElement)
 {
-    console.log(buttonElement.id);
+    //console.log(buttonElement.id);
     let list = buttonElement.parentElement.children;
     clearButtons(list);
-    buttonElement.style.backgroundColor = 'lightgreen';
-    buttonElement.style.color = 'gray';
+    buttonElement.style.backgroundColor = 'black';
+    buttonElement.style.color = 'white';
+    $('#divButtonsDisplay').data('selId',buttonElement.id);
+    //console.log("$('#divButtonsDisplay').data('selId'="+$('#divButtonsDisplay').data('selId'));
+
+    updateTables();
 }
   </script>
 </body>
