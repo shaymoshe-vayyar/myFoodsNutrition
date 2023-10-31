@@ -90,7 +90,11 @@
                 </script>
                 <div class="w3-cell" style="width:30%"></div>
             </div>
-            <br>
+            <div class="w3-cell-row">
+                <div class="w3-cell" style="width:30%;"></div>
+                <div class="w3-cell w3-center" style="w3-rest;" dir="rtl"><p><span id="idTotalCal"> 1930 </span><span> קלוריות </span><span style="color:green;" id="idDiffCal" dir="ltr"><i> (30+)</i></span></p> </div>
+                <div class="w3-cell" style="width:30%;"></div>
+            </div>
             <br>
         </div>                                                             <!-- Date and Summary -->
         <br>
@@ -142,6 +146,32 @@ function updateTables()
         if (this.readyState == 4 && this.status == 200) {
             //console.log(this.responseText);
             document.getElementById('nutDataDiv').innerHTML = this.responseText;
+            prevCaloriesValue = $("#qr").data('prevCaloriesValue');
+            curCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
+            prevCaloriesValF = parseFloat(prevCaloriesValue);
+            $('#idDiffCal').hide();
+            if (prevCaloriesValF>=0)
+            {
+                curCaloriesValF = parseFloat(curCaloriesValue);
+                diffF = (curCaloriesValF - prevCaloriesValF).toFixed();
+                if (diffF > 0)
+                {
+                    document.getElementById('idDiffCal').textContent = `(+${diffF})`;
+                    document.getElementById('idDiffCal').style.color = `green`;
+                    $('#idDiffCal').show();
+                }
+                else if (diffF < 0)
+                {
+                    document.getElementById('idDiffCal').textContent = `(-${Math.abs(diffF)})`;
+                    document.getElementById('idDiffCal').style.color = `red`;
+                    $('#idDiffCal').show();
+                }
+                //console.log("cal. diff="+diffF);
+            }
+            //$('#idDiffCal').hide(); // Tmp
+            //console.log("curCaloriesValue="+curCaloriesValue)
+            document.getElementById('idTotalCal').textContent = curCaloriesValue;
+
         }
     };
     displayType = $('#divButtonsDisplay').data('selId');
@@ -156,6 +186,7 @@ function docLoaded()
     updateTables();
     $('#qr').focus();
     $('#butBrief').click();
+    $("#qr").data('prevCaloriesValue',-1);
 }
 function isMobile() {
   const regex = /Mobi|Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
@@ -311,6 +342,8 @@ function qrSearchSubmitted() {
                 // console.log(this.responseText);
                 //document.getElementById('blabla').textContent = this.responseText;
                 //console.log('updating table');
+                prevCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
+                $("#qr").data('prevCaloriesValue',prevCaloriesValue);
                 updateTables();
                 //clearQR();
                 document.getElementById("qr").value = '';
@@ -341,6 +374,8 @@ function qrSearchSubmitted() {
                     // console.log(this.responseText);
                     //console.log('updating table');
                     // console.log('delete');
+                    prevCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
+                    $("#qr").data('prevCaloriesValue',prevCaloriesValue);
                     updateTables();
                 }
             };
@@ -364,6 +399,8 @@ function qrSearchSubmitted() {
                       // console.log(this.responseText);
                       //console.log('updating table');
                       // console.log('delete');
+                      prevCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
+                      $("#qr").data('prevCaloriesValue',prevCaloriesValue);
                       updateTables();
                   }
               };
