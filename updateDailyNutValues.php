@@ -34,50 +34,63 @@ while($row = mysqli_fetch_array($resultCol)){
 
 // Fetch daily items
 $totalQuantityInGram = 0;
-$sqlDailyItems = "SELECT itemName,quantity,mealTimeSlot,indexCol FROM `db_daily_items` WHERE date='" . $date."' ORDER BY indexCol DESC;";
+$sqlDailyItems = "SELECT itemName,quantity,mealTimeSlot,indexCol,time FROM `db_daily_items` WHERE date='" . $date."' ORDER BY indexCol DESC;";
 $resultDailyItems = mysqli_query($con, $sqlDailyItems);
 //echo '<ul dir="rtl">';
-while ($row = mysqli_fetch_array($resultDailyItems)) {
-    $itemName = $row[0];
-    $quantity = $row[1];
-    $meal = $row[2];
-    $indexCol = $row[3];
-    $sqlItemNut = "SELECT * FROM `db_items_nut` WHERE itemName='" . $itemName."';";
-    $resultItemNut = mysqli_query($con, $sqlItemNut);
-    $list = mysqli_fetch_array($resultItemNut,MYSQLI_NUM);
-    //printf("item=%s, quantity=%d, meal=%s, count(list)=%d, list[0]=%s",$itemName, $quantity,$meal, count($list),$list[0]);
-    //echo PHP_EOL;
+$prevMealState = '';
+date_default_timezone_set("Asia/Jerusalem");
+$lastTimeMark = DateTime::createFromFormat( 'H:i',date('H:i',strtotime('-90 minutes')) );
+    while ($row = mysqli_fetch_array($resultDailyItems)) {
+        $itemName = $row[0];
+        $quantity = $row[1];
+        $meal = $row[2];
+        $indexCol = $row[3];
+        $timeStamp = DateTime::createFromFormat('H:i:s', $row[4]);
+        $sqlItemNut = "SELECT * FROM `db_items_nut` WHERE itemName='" . $itemName."';";
+        $resultItemNut = mysqli_query($con, $sqlItemNut);
+        $list = mysqli_fetch_array($resultItemNut,MYSQLI_NUM);
+        //printf("item=%s, quantity=%d, meal=%s, count(list)=%d, list[0]=%s",$itemName, $quantity,$meal, count($list),$list[0]);
+        //echo PHP_EOL;
 
-    $totalQuantityInGram += $quantity;
-    // $arrColsNames length is one less than $list as it does not include the 'itemName' column.
-    for ($ii = 0; $ii < count($arrColsNames); $ii++) {
-        if ($list[$ii]>0)
-        {
-            $arrNutValues[$arrColsNames[$ii]] += $list[$ii]*$quantity/100;
+        $totalQuantityInGram += $quantity;
+        // $arrColsNames length is one less than $list as it does not include the 'itemName' column.
+        for ($ii = 0; $ii < count($arrColsNames); $ii++) {
+            if ($list[$ii]>0)
+            {
+                $arrNutValues[$arrColsNames[$ii]] += $list[$ii]*$quantity/100;
+            }
+            else
+            {
+                $arrNutValues[$arrColsNames[$ii]] += 0;
+            }
         }
-        else
+        if (($displayType == 'butFull') and ($prevMealState != $meal))
         {
-            $arrNutValues[$arrColsNames[$ii]] += 0;
+                echo '<div class="w3-row" style="background-color: lightgrey;" >
+                    <i class="w3-cell w3-xlarge w3-right">
+                    '.$meal.'
+                    </i>
+                    </div>';
+                $prevMealState = $meal;
+        }
+//        echo '<div>
+//            '.$timeStamp->format('H:i:s').'  '.$lastTimeMark->format(' H:i:s').'
+//            </div>';
+        if (($displayType == 'butFull') or ($timeStamp > $lastTimeMark))
+        {
+                $strText1 = "'{$itemName} {$quantity} גרם '";
+                $strText2 = "'{$itemName}'";
+                echo '<div class="w3-row" style="background-color: grey;" >
+                    <i class="fa fa-times w3-large w3-cell w3-left" style="padding: 5px" onclick="removeItemFromDaily('.$indexCol.','.$strText1.')"></i>
+                    <i class="fa fa-edit w3-large w3-cell w3-left" style="padding: 5px" onclick="editItemFromDaily('.$indexCol.','.$strText2.','.$quantity.')"></i>
+                    <p class="w3-cell w3-large w3-right">'.$itemName.' '.$quantity.' גרם</p> 
+                    </div>';
         }
     }
-
-//    echo "<li style='display: inline;'>
-//        <i class='fa fa-edit' style='float-left;justify-content: left; justify-self: self-start;' dir='ltr'></i>
-//        <i class='fa fa-times' style='float-left;'></i>
-//        {$itemName} {$quantity} גרם
-//        </li>";
-    $strText1 = "'{$itemName} {$quantity} גרם '";
-    $strText2 = "'{$itemName}'";
-    echo '<div class="w3-row" style="background-color: grey;" >
-        <i class="fa fa-times w3-large w3-cell w3-left" style="padding: 5px" onclick="removeItemFromDaily('.$indexCol.','.$strText1.')"></i>
-        <i class="fa fa-edit w3-large w3-cell w3-left" style="padding: 5px" onclick="editItemFromDaily('.$indexCol.','.$strText2.','.$quantity.')"></i>
-        <p class="w3-cell w3-large w3-right">'.$itemName.' '.$quantity.' גרם</p> 
-        </div>';
-}
-//echo '</ul>';
+    //echo '</ul>';
 echo '<br><br>';
 
-$arrColsNamesToDisplay = [];
+    $arrColsNamesToDisplay = [];
 $arrNutValuesToDisplay = [];
 $arrNutUnitsToDisplay = [];
 foreach ($arrColsNames as $engNutName)
@@ -87,22 +100,22 @@ foreach ($arrColsNames as $engNutName)
         $_SESSION['engNameToHebDict'][$engNutName]);
 
     // Convert And Translate Units Values For displaying
-        $nutValue = $arrNutValues[$engNutName];
-        $unitToDisp = $_SESSION['nutUnitsToDisplayDict'][$engNutName];
-        if (array_key_exists($unitToDisp, $_SESSION['nutWeightUnitsToStandardDict']))
-            {
-                $nutValueUnitConv = $nutValue / (1e-9 + floatval($_SESSION['nutWeightUnitsToStandardDict'][$unitToDisp]));
-                $nutValueUnitConv = round($nutValueUnitConv, 1);
+    $nutValue = $arrNutValues[$engNutName];
+    $unitToDisp = $_SESSION['nutUnitsToDisplayDict'][$engNutName];
+    if (array_key_exists($unitToDisp, $_SESSION['nutWeightUnitsToStandardDict']))
+    {
+        $nutValueUnitConv = $nutValue / (1e-9 + floatval($_SESSION['nutWeightUnitsToStandardDict'][$unitToDisp]));
+        $nutValueUnitConv = round($nutValueUnitConv, 1);
 
-            }
-        else
-            {
-                $nutValueUnitConv = $nutValue;
-            }
-        array_push($arrNutValuesToDisplay,
-            $nutValueUnitConv);
-        array_push($arrNutUnitsToDisplay,
-            $_SESSION['engNameToHebDict'][$unitToDisp]);
+    }
+    else
+    {
+        $nutValueUnitConv = $nutValue;
+    }
+    array_push($arrNutValuesToDisplay,
+        $nutValueUnitConv);
+    array_push($arrNutUnitsToDisplay,
+        $_SESSION['engNameToHebDict'][$unitToDisp]);
 }
 
 //echo '<table style="border:1; cellpadding:1; cellspacing:0; align:center; valign:top;" dir="rtl" class="nv-table text-center">';
