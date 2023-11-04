@@ -8,12 +8,15 @@ from typing import Literal, List
 
 class SqlConnection(object):
     _sql_host_ = ['pc']
+    _sql_db_ = None
     _sql_connection_ = {'pc':None,'web':None}
     _sql_cursor_ = {'pc':None,'web':None}
 
     # parameterized constructor
-    def __init__(self, sql_host : List[Literal['pc','web']]):
+    def __init__(self, sql_host : List[Literal['pc','web']],
+                 sql_db : str = None):
         self._sql_host_ = sql_host
+        self._sql_db_ = sql_db
         self.__open_connection_if_none__()
 
     def __del__(self):
@@ -32,6 +35,9 @@ class SqlConnection(object):
                     username = 'root'
                     password = ''
                     database = 'ajax_demo'
+
+                if (self._sql_db_ is not None):
+                    database = self._sql_db_
 
                 self._sql_connection_[host] = mysql.connector.connect(
                     host=hostname,
@@ -96,14 +102,15 @@ class SqlConnection(object):
 #   * Delete Table (including backup option)
 
 class DatabaseHandler(object):
-    _sql_connection_ = SqlConnection(['pc','web'])
+    _sql_connection_ = SqlConnection(['pc' ,'web'])
     def __new__ (cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(DatabaseHandler, cls).__new__ (cls)
         return cls.instance
 
-    def set_host(self,host_list : List[Literal['pc','web']]):
-        _sql_connection_ = SqlConnection(host_list)
+    def set_host(self,host_list : List[Literal['pc','web']],
+                 sql_db : str = None):
+        _sql_connection_ = SqlConnection(host_list, sql_db)
 
     def checkIfTableExists(self, table_name : str):
         self._sql_connection_.execute(f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{table_name}');")

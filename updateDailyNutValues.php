@@ -20,7 +20,7 @@ $arrColsNames = [];
 $arrNutValues = [];
 while($row = mysqli_fetch_array($resultCol)){
     //echo $row['Field']."<br>";
-    if ($row['Field'] != 'itemName') {
+    if (($row['Field'] != 'itemName') and (!str_starts_with($row['Field'],'_'))) {
         array_push($arrColsNames, $row['Field']);
         $arrNutValues[$row['Field']] = 0;
     }

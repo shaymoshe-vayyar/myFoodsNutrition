@@ -31,3 +31,14 @@ HandleItemsAndNutValuesDBs.GuiFoodData()
 # nut values  UL,
 
 # Create all tables from Python
+#
+# Improvements:
+# * Allow search for synomynon, better searching (different words order, give more weight to first words, search basic items before extended, ignore words in parenthsis etc...)
+# * Add data from USDA DB, with the option of combining from several resources
+# * Add recipe analyzer
+# * Add option to add data from online website
+# * Add data regarding the items category that are missing. e.g. green, orange, yellow etc. vegt. Grain quantity, nuts etc.
+# * Remove sources table and include it in the items nut db file
+# * Combine the goals, upper limits, display units per nut. tables
+
+

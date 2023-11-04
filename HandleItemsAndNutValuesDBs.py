@@ -76,7 +76,7 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
     return urls
 
 # Internal
-def updateItemToDb(itemName,itemUrl,itemDesc):
+def updateItemToDb(itemName,itemUrl,itemDesc, isExtended):
     # Update links Table
     #check if exists
     if not DatabaseHandler().checkIfTableExists(gc.__tableSourcesLinksName__):
@@ -97,6 +97,7 @@ def updateItemToDb(itemName,itemUrl,itemDesc):
     import foodsdicParsing
     parsedItem = foodsdicParsing.ParseUrl(itemUrl)
     parsedItem[gc.__tableItemsNutValuesItemName__] = itemName
+    parsedItem[gc.__tableItemsNutValuesIsExtendedName__] = isExtended
 
     # Check if item already exists
     retItem = DatabaseHandler().getItem(gc.__tableItemsNutValuesTableName__,gc.__tableItemsNutValuesItemName__,itemName,list(parsedItem.keys()))
@@ -131,7 +132,7 @@ def GuiFoodData():
                      expand_x=True,
                      expand_y=True,
                      enable_click_events=True)
-    layout = [[psg.Text('המתכונים שלי'),psg.Checkbox('',key="_MyRecCB_"), psg.Text('בחר מוצר')],
+    layout = [[psg.Text('מורחב'),psg.Checkbox('',key="_ExtendedCB_"),psg.Text('המתכונים שלי'),psg.Checkbox('',key="_MyRecCB_"), psg.Text('בחר מוצר')],
               [psg.InputText('',enable_events=True,expand_x=True, key="_COMBOINPUT_")],
               [psg.Button('Submit', visible=False, bind_return_key=True)],
               [tbl1],
@@ -172,9 +173,9 @@ def GuiFoodData():
                 itemDesc = selItem[0]
                 # ch = psg.popup_yes_no("You clicked row:{}, selected Item:{}, continue?".format(event[2][0], selItem[2]),"Please Confirm")
                 itemName = psg.popup_get_text('בחר שם למוצר', title="אנא אשר", default_text=f'{itemName}')
-
+                isExtended = values['_ExtendedCB_']
                 if itemName is not None:
-                    updateItemRes = updateItemToDb(itemName,urlItem,itemDesc)
+                    updateItemRes = updateItemToDb(itemName,urlItem,itemDesc,isExtended)
                     if (updateItemRes[1]):
                         updateStsText = "כבר קיים"
                     else:
