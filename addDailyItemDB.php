@@ -72,7 +72,7 @@ if (!$con) {
 }
 
 mysqli_select_db($con,$_SESSION['database']);
-$sql = "INSERT INTO db_daily_items (`date`, `itemName`, `quantity`, `mealTimeSlot`, `time`) VALUES ('".$date."', '".$itemName."', ".$quantity.", '".$mealTimeSlot."', '".$time."');";
+$sql = "INSERT INTO table_daily_items (`itmDate`, `itemName`, `quantity`, `mealTimeSlot`, `itmTime`) VALUES ('".$date."', '".$itemName."', ".$quantity.", '".$mealTimeSlot."', '".$time."');";
 printf("SQL query = %s\n",$sql);
 $result = mysqli_query($con, $sql);
 

@@ -14,7 +14,7 @@ if (!$con) {
 }
 
 mysqli_select_db($con,$_SESSION['database']);
-$sql = "DELETE FROM db_daily_items WHERE indexCol={$itemIndex};";
+$sql = "DELETE FROM table_daily_items WHERE UID={$itemIndex};";
 printf("SQL query = %s\n",$sql);
 $result = mysqli_query($con, $sql);
 

@@ -25,6 +25,7 @@ function readDictTable($tableName, $con)
 //    echo "--------------------------------------------------------";
     return $dict;
 }
+
 $session_name = "DailyFoodsSessionID";
 if (!is_session_started()) {
     session_name($session_name);
@@ -46,15 +47,15 @@ if ((!array_key_exists($isSet, $_SESSION)) or (!$_SESSION[$isSet])) {
         $_SESSION['host'] = 'localhost';
         $_SESSION['username'] = 'root';
         $_SESSION['password'] = '';
-        $_SESSION['database'] = 'ajax_demo';
+        $_SESSION['database'] = 'nutrition_app';
         $_SESSION['isLocal'] = True;
     }
     else
     {
         $_SESSION['host'] = '127.0.0.1';
-        $_SESSION['username'] = 'u230048523_shay';
+        $_SESSION['username'] = 'u230048523_shay2';
         $_SESSION['password'] = 'MosheMoshe1!';
-        $_SESSION['database'] = 'u230048523_ajax_demo';
+        $_SESSION['database'] = 'u230048523_nutrition'; //'u230048523_ajax_demo';
         $_SESSION['isLocal'] = False;
     }
 
@@ -72,13 +73,6 @@ if ((!array_key_exists($isSet, $_SESSION)) or (!$_SESSION[$isSet])) {
         mysqli_select_db($con,$_SESSION['database']);
         $_SESSION[$conStr] = $con;
     }
-
-
-    // Load Conversion Tables
-    $_SESSION['engNameToHebDict'] = readDictTable('eng_heb_terms', $con);
-    $_SESSION['nutUnitsToDisplayDict'] = readDictTable('conversion_nut_units_to_display', $con);
-    $_SESSION['nutWeightUnitsToStandardDict'] = readDictTable('conversion_units_to_standard', $con);
-    $_SESSION['dailyNutritionGoalsDict'] = readDictTable('daily_nutrition_goals', $con);
 
     $_SESSION[$isSet] = True;
 }

@@ -1,15 +1,15 @@
 
 # App 0
-# import createBasicTablesDB
-# createBasicTablesDB.createEngHebTermsTableDB()
-# createBasicTablesDB.createNutValuesTableDB()
-# createBasicTablesDB.createNutUnitsToDisplayTableDB()
-# createBasicTablesDB.createDailyNutGoalsTableDB()
+# import create_tables
+# create_tables.createEngHebTermsTableDB()
+# create_tables.createNutValuesTableDB()
+# create_tables.createNutUnitsToDisplayTableDB()
+# create_tables.createDailyNutGoalsTableDB()
 
 
-# App1
-# Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
-# Then allow the user to select the item, change item name and it will be stored in the DB
+# # App1
+# # Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
+# # Then allow the user to select the item, change item name and it will be stored in the DB
 import HandleItemsAndNutValuesDBs
 # DatabaseHandler.__host__ = DatabaseHandler.setHost(DatabaseHandler.__host__,'pc')
 HandleItemsAndNutValuesDBs.GuiFoodData()
@@ -41,4 +41,16 @@ HandleItemsAndNutValuesDBs.GuiFoodData()
 # * Remove sources table and include it in the items nut db file
 # * Combine the goals, upper limits, display units per nut. tables
 
+# Tables:
+#   Nutrition attributes with nut. unique ID, nut. name, nut. daily Goal, nut. daily UL, nut display per unit, additional names (english/hebrew)?
+#   Items list with item's unique ID (auto index), user unique ID?, item name - index (+additional names?), Nutrition Values, type/category (e.g. green veg., nuts, etc),
+#                           source(s), isExtended, isCombined, item description (including recipe?), item photo link?
+#   Daily items list - unique ID (auto Index), user unique ID?, list of date, time, item, quantity
+#   Translation table - unique id (Auto Index), heb<->eng. for units, [nut. names?, item names? - better maintanance in their tables, to minimize pointers/duplicated lists from tables]
 
+# New App 0 - build DBs
+
+# TODO:
+# * Update UL Goals, daily goals cross check from US health doc
+# * Fix Safari support
+# * Fix פיצה אישית

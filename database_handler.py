@@ -26,15 +26,16 @@ class SqlConnection(object):
         for host in self._sql_host_:
             if (self._sql_connection_[host] is None) or (not self._sql_connection_[host].is_connected()):
                 if host == 'web':
-                    hostname = '193.203.166.13'  # '127.0.0.1';
-                    username = 'u230048523_shay'
+                    # Note!!! The remote SQL access from the user IP should be enabled from the site
+                    hostname = 'mydailynutrition.site' # '193.203.166.13'  # '127.0.0.1';
+                    username = 'u230048523_shay2'
                     password = 'MosheMoshe1!'
-                    database = "u230048523_ajax_demo"
+                    database = 'u230048523_nutrition' #"u230048523_ajax_demo"
                 else:
                     hostname = 'localhost'
                     username = 'root'
                     password = ''
-                    database = 'ajax_demo'
+                    database = 'nutrition_app' #'ajax_demo'
 
                 if (self._sql_db_ is not None):
                     database = self._sql_db_
@@ -102,7 +103,8 @@ class SqlConnection(object):
 #   * Delete Table (including backup option)
 
 class DatabaseHandler(object):
-    _sql_connection_ = SqlConnection(['pc' ,'web'])
+    _sql_connection_ = SqlConnection(['pc','web'])
+    # _sql_connection_ = SqlConnection(['pc'],'nutrition_app')
     def __new__ (cls):
         if not hasattr(cls, 'instance'):
             cls.instance = super(DatabaseHandler, cls).__new__ (cls)
@@ -121,7 +123,8 @@ class DatabaseHandler(object):
                     table_name,
                     colsNamesAndTypes: dict,
                     PrimaryKeyName=None,
-                    colProp: dict[str,Literal['None','Index','UniqueIndex','AutoIncreament']] = None,
+                    isPrimaryAutoIncrement = True,
+                    colProp: dict[str,Literal['Index','UniqueIndex']] = None,
                     colDefValues: dict = None,
                     ifExists: Literal['fail', 'replace'] = 'fail'
                     ):
@@ -136,11 +139,15 @@ class DatabaseHandler(object):
                 case 'float64':
                     typeName = 'DOUBLE'
                 case 'float' | 'float32':
-                    typeName = 'FLOAT' # Assuming float32 is enough
+                    typeName = 'FLOAT'  # Assuming float32 is enough
                 case 'str':
                     typeName = 'VARCHAR(255)'
                 case 'object':  # Assuming object is string
                     typeName = 'VARCHAR(255)'
+                case 'date':
+                    typeName = 'date'
+                case 'time':
+                    typeName = 'time'
                 case other:
                     print(colsNamesAndTypes[colName])
                     raise Exception('type not defined!')
@@ -174,9 +181,21 @@ class DatabaseHandler(object):
             self._sql_connection_.execute("SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS WHERE CONSTRAINT_TYPE = 'PRIMARY KEY' AND TABLE_NAME = '{table}';".format(table=table_name))
             myresult = self._sql_connection_.fetchall()
             if (myresult is None) or (len(myresult)==0):
-                self._sql_connection_.execute("ALTER TABLE `{table}` ADD PRIMARY KEY(`{PrimaryKeyName}`);".format(table=table_name,PrimaryKeyName=PrimaryKeyName))
+                if (isPrimaryAutoIncrement):
+                    self._sql_connection_.execute(f"ALTER TABLE `{table_name}` MODIFY COLUMN `{PrimaryKeyName}` INT AUTO_INCREMENT PRIMARY KEY;")
+                else:
+                    self._sql_connection_.execute(f"ALTER TABLE `{table_name}` ADD PRIMARY KEY(`{PrimaryKeyName}`);")
             else:
                 raise Exception("Primary Key already exists")
+
+        if (colProp is not None):
+            for colName,colPropV in colProp.items():
+                if (colPropV == 'UniqueIndex'):
+                    self._sql_connection_.execute(f"ALTER TABLE `{table_name}` ADD UNIQUE (`{colName}`);")
+                elif colPropV == 'Index':
+                    self._sql_connection_.execute(f"ALTER TABLE `{table_name}` ADD INDEX (`{colName}`);")
+                else:
+                    raise Exception("Unknown column property!")
 
         self._sql_connection_.commit()
         return True

@@ -29,7 +29,7 @@ if ($isFull == '1') {
 }
 else {
     //$sql = "SELECT itemName,Energy FROM `db_items_nut` WHERE itemName LIKE '" . $q . "%';";
-    $sql = "SELECT itemName,Energy FROM `db_items_nut` WHERE itemName REGEXP '\\\\b{$q}';";
+    $sql = "SELECT itemName,_energy FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}';";
     $result = mysqli_query($con, $sql);
 
     while ($row = mysqli_fetch_array($result)) {

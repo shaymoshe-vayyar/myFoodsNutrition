@@ -76,7 +76,7 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
     return urls
 
 # Internal
-def updateItemToDb(itemName,itemUrl,itemDesc, isExtended):
+def updateItemToDbOld(itemName,itemUrl,itemDesc, isExtended):
     # Update links Table
     #check if exists
     if not DatabaseHandler().checkIfTableExists(gc.__tableSourcesLinksName__):
@@ -114,6 +114,28 @@ def updateItemToDb(itemName,itemUrl,itemDesc, isExtended):
                 return True, True
     else:
         DatabaseHandler().addItem(gc.__tableItemsNutValuesTableName__,list(parsedItem.keys()),list(parsedItem.values()))
+    print(parsedItem)
+    return True,False
+
+def updateItemToDb(itemName,itemUrl,itemDesc, isExtended):
+    # Check if item already exists
+    retItem = DatabaseHandler().getItem(gc.__table_items_data_name__,'itemName',itemName)
+    if len(retItem) > 0:  # Already exists - check that info is the same
+        print(f'{itemName} already exists')
+        raise Exception(f"'{itemName}' already exists")
+
+    import foodsdicParsing
+    parsedItem = foodsdicParsing.ParseUrl(itemUrl)
+    parsedItem['itemName'] = itemName
+    parsedItem['additionalNames'] = ''
+    parsedItem['categoryType'] = 'general'
+    parsedItem['nutritionsVSource'] = itemUrl
+    parsedItem['isExtended'] = isExtended
+    parsedItem['itemsCombination'] = ''
+    parsedItem['itemDescription'] = ''
+    parsedItem['itemPhotoLink'] = ''
+
+    DatabaseHandler().addItem(gc.__table_items_data_name__,list(parsedItem.keys()),list(parsedItem.values()))
     print(parsedItem)
     return True,False
 

@@ -14,15 +14,16 @@ if (!$con) {
 mysqli_select_db($con,$_SESSION['database']);
 
 // Fetch Nut Values Columns
-$sqlCol = "SHOW COLUMNS FROM db_items_nut";
+$sqlCol = "SHOW COLUMNS FROM table_items_data";
 $resultCol = mysqli_query($con,$sqlCol);
 $arrColsNames = [];
 $arrNutValues = [];
 while($row = mysqli_fetch_array($resultCol)){
     //echo $row['Field']."<br>";
-    if (($row['Field'] != 'itemName') and (!str_starts_with($row['Field'],'_'))) {
-        array_push($arrColsNames, $row['Field']);
-        $arrNutValues[$row['Field']] = 0;
+    if (str_starts_with($row['Field'],'_')) {
+        $nutrition_name = substr($row['Field'], 1);
+        array_push($arrColsNames, $nutrition_name);
+        $arrNutValues[$nutrition_name] = 0;
     }
 }
 
@@ -34,7 +35,7 @@ while($row = mysqli_fetch_array($resultCol)){
 
 // Fetch daily items
 $totalQuantityInGram = 0;
-$sqlDailyItems = "SELECT itemName,quantity,mealTimeSlot,indexCol,time FROM `db_daily_items` WHERE date='" . $date."' ORDER BY indexCol DESC;";
+$sqlDailyItems = "SELECT itemName,quantity,mealTimeSlot,UID,itmTime FROM `table_daily_items` WHERE itmDate='" . $date."' ORDER BY UID DESC;";
 $resultDailyItems = mysqli_query($con, $sqlDailyItems);
 //echo '<ul dir="rtl">';
 $prevMealState = '';
@@ -46,18 +47,25 @@ $lastTimeMark = DateTime::createFromFormat( 'H:i',date('H:i',strtotime('-90 minu
         $meal = $row[2];
         $indexCol = $row[3];
         $timeStamp = DateTime::createFromFormat('H:i:s', $row[4]);
-        $sqlItemNut = "SELECT * FROM `db_items_nut` WHERE itemName='" . $itemName."';";
+        $sqlItemNut = "SELECT * FROM `table_items_data` WHERE itemName='" . $itemName."';";
         $resultItemNut = mysqli_query($con, $sqlItemNut);
-        $list = mysqli_fetch_array($resultItemNut,MYSQLI_NUM);
+        $list = mysqli_fetch_array($resultItemNut,MYSQLI_ASSOC);
         //printf("item=%s, quantity=%d, meal=%s, count(list)=%d, list[0]=%s",$itemName, $quantity,$meal, count($list),$list[0]);
         //echo PHP_EOL;
 
         $totalQuantityInGram += $quantity;
         // $arrColsNames length is one less than $list as it does not include the 'itemName' column.
+        //echo "<td>".array_keys($list)."<td>";
+
+//        foreach ($list as $key => $val)
+//        {
+//            echo "<td>" .$key. ': ' . $val . "</td>";
+//        }
         for ($ii = 0; $ii < count($arrColsNames); $ii++) {
-            if ($list[$ii]>0)
+            $nutrition_name_tag = '_'.$arrColsNames[$ii];
+            if ($list[$nutrition_name_tag]>0)
             {
-                $arrNutValues[$arrColsNames[$ii]] += $list[$ii]*$quantity/100;
+                $arrNutValues[$arrColsNames[$ii]] += $list[$nutrition_name_tag]*$quantity/100;
             }
             else
             {
@@ -89,6 +97,53 @@ $lastTimeMark = DateTime::createFromFormat( 'H:i',date('H:i',strtotime('-90 minu
     }
     //echo '</ul>';
 echo '<br><br>';
+
+// Load Conversion Tables
+$_SESSION['dailyNutritionGoalsDict'] = [];
+$result = mysqli_query($con,"SELECT nutritionName,nutritionDGoal,nutritionDisplayUnits,hebrewDisplayName,isDisplayed FROM table_nutrition_attribute;");
+while($row = mysqli_fetch_array($result)){
+    $_SESSION['dailyNutritionGoalsDict'][$row[0]] = $row[1];
+    $_SESSION['nutUnitsToDisplayDict'][$row[0]] = $row[2];
+    $_SESSION['engNameToHebDict'][$row[0]] = $row[3];
+}
+// TODO: Move to eng. to heb. translator
+$_SESSION['engNameToHebDict']['gram'] = 'גרם';
+$_SESSION['engNameToHebDict']['miliGram'] = 'מ"ג';
+$_SESSION['engNameToHebDict']['microGram'] = 'מק"ג';
+$_SESSION['engNameToHebDict']['tspn'] = 'כפיות סוכר';
+$_SESSION['engNameToHebDict']['calories'] = 'קלוריות';
+
+// TODO: Move to dedicated table
+$_SESSION['nutWeightUnitsToStandardDict'] = [
+    "gram" => 1,
+    "miliGram" => 0.001,
+    "microGram" => 1e-06,
+    "tspn" => 4.2,
+];
+
+
+// table_nutrition_attribute
+//    $_SESSION['engNameToHebDict'] = readDictTable('eng_heb_terms', $con);
+//    $_SESSION['nutUnitsToDisplayDict'] = readDictTable('conversion_nut_units_to_display', $con);
+//    $_SESSION['nutWeightUnitsToStandardDict'] = readDictTable('conversion_units_to_standard', $con);
+//    $_SESSION['dailyNutritionGoalsDict'] = readDictTable('daily_nutrition_goals', $con);
+function readNutritionAttribute($tableName, $con)
+{
+    // Load $tableName
+    $result = mysqli_query($con,"SELECT * FROM {$tableName};");
+    $dict = [];
+    while($row = mysqli_fetch_array($result)){
+        $dict[$row[0]] = $row[1];
+    }
+//     echo $tableName.PHP_EOL;
+//        foreach($dict as $key=>$value) {
+//            // your code here
+//            echo "{$key}={$value}\n";
+//        }
+//    echo "--------------------------------------------------------";
+    return $dict;
+}
+
 
     $arrColsNamesToDisplay = [];
 $arrNutValuesToDisplay = [];

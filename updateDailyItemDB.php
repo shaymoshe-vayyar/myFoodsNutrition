@@ -15,7 +15,7 @@ if (!$con) {
 }
 
 mysqli_select_db($con,$_SESSION['database']);
-$sql = "UPDATE db_daily_items SET quantity={$newQuantity} WHERE indexCol={$itemIndex};";
+$sql = "UPDATE table_daily_items SET quantity={$newQuantity} WHERE UID={$itemIndex};";
 printf("SQL query = %s\n",$sql);
 $result = mysqli_query($con, $sql);
 
