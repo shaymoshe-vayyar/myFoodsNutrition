@@ -111,11 +111,12 @@ def ParseUrl(url : str):
             nutEngUnits = HandleConversion.__dictHebNameToEngName__[nutUnits]
             if (__nutDisplayUnitsEng__.__contains__(EngNutName)):
                 if (__nutDisplayUnitsEng__[EngNutName] != nutEngUnits):
-                    raise Exception('unit has changed during read')
+                    old_unit = __nutDisplayUnitsEng__[EngNutName]
+                    print(f'Display unit for {EngNutName} has changed during read from {old_unit} to {nutEngUnits}')
             else:
                 __nutDisplayUnitsEng__[EngNutName] = nutEngUnits
 
-            nutValueTableRows[EngNutName] = convertedValue
+            nutValueTableRows['_'+EngNutName] = convertedValue
         else:
            for line in nutData.find_all('th'):
                 if line.get('id')=='sizeNameTd':

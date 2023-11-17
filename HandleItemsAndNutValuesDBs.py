@@ -209,6 +209,76 @@ def GuiFoodData():
     window.close()
 
 
+def GuiFoodDataEdit():
+    psg.set_options(font=("Arial Bold", 14),text_justification="right")
+    lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
+    toprow = ['פרטים נוספים', 'קישור', 'שם המוצר']
+    rows = [[]]
+    tbl1 = psg.Table(values=rows, headings=toprow,
+                     auto_size_columns=True,
+                     display_row_numbers=False,
+                     justification='right',
+                     key='-TABLE-',
+                     selected_row_colors='red on yellow',
+                     enable_events=True,
+                     expand_x=True,
+                     expand_y=True,
+                     enable_click_events=True)
+    layout = [[psg.Text('בחר מוצר')],
+              [psg.InputText('',enable_events=True,expand_x=True, key="_COMBOINPUT_")],
+              [psg.Button('Submit', visible=False, bind_return_key=True)],
+              [tbl1],
+              [psg.Text('',key='_StatusBar_')]]
+    # [lst],
+    window = psg.Window("הוספת מוצרים", layout, size=(1200, 800), resizable=True,element_justification="right",finalize=True)
+    window["_COMBOINPUT_"].Widget.configure(justify="right")
+    selItem = None
+
+    while True:
+        event, values = window.read()
+
+        print("event:", event, "values:", values)
+        if event == psg.WIN_CLOSED:
+            break
+        if event == "Submit":
+            urls = GetListOfOptionalUrls(values['_COMBOINPUT_'],values['_MyRecCB_'])
+            listNutForTable = []
+            for item in urls:
+                name = item[0]
+                url = item[1]
+                nameDetails = item[2]
+                listNutForTable.append([
+                    nameDetails, # Details
+                    url, # Link
+                    name # Item
+                ])
+            tbl1.update(listNutForTable)
+        if '+CLICKED+' in event:
+            selRow = event[2][0]
+            if (selRow is not None) and (selRow >= 0):
+                selItem = tbl1.get()[selRow]
+                itemName = selItem[2]
+                if values['_MyRecCB_']:
+                    urlItem = selItem[1]
+                else:
+                    urlItem = selItem[1][selItem[1].find('http'):]
+                itemDesc = selItem[0]
+                # ch = psg.popup_yes_no("You clicked row:{}, selected Item:{}, continue?".format(event[2][0], selItem[2]),"Please Confirm")
+                itemName = psg.popup_get_text('בחר שם למוצר', title="אנא אשר", default_text=f'{itemName}')
+                isExtended = values['_ExtendedCB_']
+                if itemName is not None:
+                    updateItemRes = updateItemToDb(itemName,urlItem,itemDesc,isExtended)
+                    if (updateItemRes[1]):
+                        updateStsText = "כבר קיים"
+                    else:
+                        updateStsText = "עודכן"
+                        # window['_StatusBar_'].update(f"' עודכן {itemName}'")
+                    window['_StatusBar_'].update(f"{itemName}' {updateStsText}'")
+                    print(f"'{itemName}' Updated!")
+
+    window.close()
+
+
 def createDBNutUnitsForDisplay():
     dictNutUnitsForDisplayEng = dict()
     import HandleConversion

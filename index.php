@@ -92,7 +92,7 @@
             </div>
             <div class="w3-cell-row">
                 <div class="w3-cell" style="width:30%;"></div>
-                <div class="w3-cell w3-center" style="w3-rest;" dir="rtl"><p><span id="idTotalCal"> 1930 </span><span> קלוריות </span><span style="color:green;" id="idDiffCal" dir="ltr"><i> (30+)</i></span></p> </div>
+                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalCal"> 1930 </span><span> קלוריות </span><span style="color:green;" id="idDiffCal" dir="ltr"><i> (30+)</i></span></p> </div>
                 <div class="w3-cell" style="width:30%;"></div>
             </div>
             <br>
@@ -103,7 +103,7 @@
                    placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" onsearch="qrSearchSubmitted()"
                    aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
 
-            <ul popover id="qrpopover" style="position:relative; inset=unset;top=40px"></ul>
+            <ul popover id="qrpopover" style="position:relative; inset:unset; top:40px"></ul>
         </div>                                                              <!-- Search Query -->
 
         <br>
@@ -284,14 +284,29 @@ function updateQRSuggestions() {
                               const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
                                //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
                               text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
-                              if ((arrOptions.length == 2) && (numbersInStr != null) && (numbersInStr.length>0)) // Only one suggestion
+                              if ((numbersInStr != null) && (numbersInStr.length>0)) // Only one suggestion
                               {
-                                  //console.log("data="+$('#qr').data('selItem'));
-                                  $('#qr').data('selItem',name);
-                                  $('#qr').data('quantity',numDesiredQuantity);
-                                  if (retAtTheEnd)
+                                  flag_is_submit = false;
+                                  if (arrOptions.length == 2)
                                   {
-                                      qrSearchSubmitted();
+                                      flag_is_submit = true;
+                                  }
+                                  else
+                                  {
+                                      if (name.trim() == hebWordsInStr.join(' ').trim())
+                                      {
+                                         flag_is_submit = true; 
+                                      }
+                                  }
+                                  if (flag_is_submit)
+                                  {
+                                     //console.log("data="+$('#qr').data('selItem'));
+                                    $('#qr').data('selItem',name);
+                                    $('#qr').data('quantity',numDesiredQuantity);
+                                    if (retAtTheEnd)
+                                    {
+                                        qrSearchSubmitted();
+                                    }                                   
                                   }
                               }
                           }

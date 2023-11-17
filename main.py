@@ -6,13 +6,16 @@
 # create_tables.createNutUnitsToDisplayTableDB()
 # create_tables.createDailyNutGoalsTableDB()
 
+# # Tmp
+# import USDAParsing
+# USDAParsing.get_nutrition_values('')
 
 # # App1
 # # Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
 # # Then allow the user to select the item, change item name and it will be stored in the DB
 import HandleItemsAndNutValuesDBs
-# DatabaseHandler.__host__ = DatabaseHandler.setHost(DatabaseHandler.__host__,'pc')
 HandleItemsAndNutValuesDBs.GuiFoodData()
+# HandleItemsAndNutValuesDBs.GuiFoodDataEdit()
 
 # App2
 
