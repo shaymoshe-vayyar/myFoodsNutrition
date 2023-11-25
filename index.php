@@ -92,8 +92,17 @@
             </div>
             <div class="w3-cell-row">
                 <div class="w3-cell" style="width:30%;"></div>
-                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalCal">  </span><span> קלוריות </span><span style="color:green;" id="idDiffCal" dir="ltr"><i> (30+)</i></span></p> </div>
+                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalCal">  </span><span> קלוריות </span><span style="color:green;" id="idDiffCal" dir="ltr"><i> (0+)</i></span></p> </div>
                 <div class="w3-cell" style="width:30%;"></div>
+            </div>
+            <div class="w3-cell-row">
+                <div class="w3-cell" style="width:5%;"></div>
+                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalProtein">  </span><span> חלבונים </span></p> </div>
+                <div class="w3-cell" style="width:5%;"></div>
+                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalCarb">  </span><span> פחמימות </span></p> </div>
+                <div class="w3-cell" style="width:5%;"></div>
+                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalFat">  </span><span> שומנים </span></p> </div>
+                <div class="w3-cell" style="width:5%;"></div>
             </div>
             <br>
         </div>                                                             <!-- Date and Summary -->
@@ -136,7 +145,6 @@ function updateTables()
             //console.log(this.responseText);
             document.getElementById('nutDataDiv').innerHTML = this.responseText;
             prevCaloriesValue = $("#qr").data('prevCaloriesValue');
-            curCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
             prevCaloriesValF = parseFloat(prevCaloriesValue);
             $('#idDiffCal').hide();
             if (prevCaloriesValF>=0)
@@ -159,7 +167,12 @@ function updateTables()
             }
             //$('#idDiffCal').hide(); // Tmp
             //console.log("curCaloriesValue="+curCaloriesValue)
+            curCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
             document.getElementById('idTotalCal').textContent = curCaloriesValue;
+            document.getElementById('idTotalProtein').textContent = document.getElementById('tableNutValues').getAttribute('data-protein')+'%';
+            document.getElementById('idTotalCarb').textContent = document.getElementById('tableNutValues').getAttribute('data-carb')+'%';
+            document.getElementById('idTotalFat').textContent = document.getElementById('tableNutValues').getAttribute('data-fat')+'%';
+            
 
         }
     };
