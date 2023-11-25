@@ -233,6 +233,39 @@ class DatabaseHandler(object):
         values = self._sql_connection_.fetchall()
         return values
 
+    def searchItem(self,
+                table_name : str,
+                colNameToSearch : str,
+                colValuesToSearch : str,
+                colsNameToGet : list[str] = None, # None to get all
+                search_mode : Literal['like','regexp','equal'] = 'equal'
+                ):
+        str_srch = '==' # default
+        match search_mode:
+            case 'like':
+                str_srch = 'LIKE'
+            case 'regexp':
+                str_srch = 'REGEXP'
+
+        if (colsNameToGet is None):
+            strColsNameToGet = '*'
+            self._sql_connection_.execute(f"DESCRIBE {table_name};")
+            columns_info = self._sql_connection_.fetchall()
+            columns_names = [column_info[0] for column_info in columns_info]
+        else:
+            strColsNameToGet = ','.join(colsNameToGet)
+
+        self._sql_connection_.execute(
+            f"SELECT {strColsNameToGet} FROM `{table_name}` WHERE {colNameToSearch} {str_srch} '{colValuesToSearch}';")
+        values = self._sql_connection_.fetchall()
+        if colsNameToGet is None:
+            table_dict_list = []
+            for value in values:
+                table_dict_list.append({columns_names[ii] : value[ii] for ii in range(len(columns_names))})
+            return table_dict_list
+        else:
+            return values
+
     def updateItem(self,
                    tableName : str,
                 colNameToSearch : str,

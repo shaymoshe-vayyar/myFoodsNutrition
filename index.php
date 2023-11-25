@@ -17,7 +17,7 @@
 
 <!--https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container-->
 
-<html lang="he" style="font-size: 16px;">
+<html lang="he" style="font-size: 16px;" >
 <head>
     <meta content="charset=utf-8; text/html" http-equiv="Content-Type">
   <!--  <meta content="text/html; charset=windows-1255" http-equiv="Content-Type">-->
@@ -55,7 +55,7 @@
 <!--    Style-->
 
 </head>
-<body onload="docLoaded()" style="background-color:#dcd7d3;">
+<body onload="docLoaded()" style="background-color:#dcd7d3;" >
 
 <hr>
 <nav class="w3-sidebar w3-bar-block w3-card-4" id="mySidebar" style="display: none;right:5px;">
@@ -92,7 +92,7 @@
             </div>
             <div class="w3-cell-row">
                 <div class="w3-cell" style="width:30%;"></div>
-                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalCal"> 1930 </span><span> קלוריות </span><span style="color:green;" id="idDiffCal" dir="ltr"><i> (30+)</i></span></p> </div>
+                <div class="w3-cell w3-center" style="w3-rest" dir="rtl"><p><span id="idTotalCal">  </span><span> קלוריות </span><span style="color:green;" id="idDiffCal" dir="ltr"><i> (30+)</i></span></p> </div>
                 <div class="w3-cell" style="width:30%;"></div>
             </div>
             <br>
@@ -124,18 +124,7 @@
 <br>
 
   <script>
-      // window.onload = function () {
-      //     var span = document.createElement('span');
-      //
-      //     // <i class="fa-regular fa-pen-to-square"></i>
-      //     span.className = 'fa';
-      //     span.style.display = 'none';
-      //     document.body.insertBefore(span, document.body.firstChild);
-      //
-      //     alert(window.getComputedStyle(span, null).getPropertyValue('font-family'));
-      //
-      //     document.body.removeChild(span);
-      // };
+
 function updateTables()
 {
     dateToAdd = document.getElementById("picker").value;
@@ -444,5 +433,11 @@ function switchButton(buttonElement)
 
     updateTables();
 }
+//
+//window.onload = function() {
+//  docLoaded();
+//  alert('doc loaded');
+//};
+
   </script>
 </body>
