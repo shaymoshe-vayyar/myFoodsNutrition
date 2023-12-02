@@ -104,6 +104,7 @@ class SqlConnection(object):
 
 class DatabaseHandler(object):
     _sql_connection_ = SqlConnection(['pc','web'])
+    # _sql_connection_ = SqlConnection(['pc'])
     # _sql_connection_ = SqlConnection(['pc'],'nutrition_app')
     def __new__ (cls):
         if not hasattr(cls, 'instance'):

@@ -60,7 +60,8 @@
 <hr>
 <nav class="w3-sidebar w3-bar-block w3-card-4" id="mySidebar" style="display: none;right:5px;">
     <button onclick='document.getElementById("mySidebar").style.display = "none";' class="w3-button w3-display-topright w3-large">X</button>
-    <h3 class="w3-bar-item w3-button" href="#">יומן מעקב יומי</h3>
+    <h3 class="w3-bar-item w3-button"><a href="index.php">יומן מעקב יומי</a></h3>
+    <h3 class="w3-bar-item w3-button"><a href="AddingFoodPage.php">הוספה של מאכל</a></h3>
     <h3 class="w3-bar-item w3-button" href="#">הגדרות</h3>
 </nav>
 <header class="w3-main w3-cell-row" >
@@ -147,6 +148,7 @@ function updateTables()
             prevCaloriesValue = $("#qr").data('prevCaloriesValue');
             prevCaloriesValF = parseFloat(prevCaloriesValue);
             $('#idDiffCal').hide();
+            curCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
             if (prevCaloriesValF>=0)
             {
                 curCaloriesValF = parseFloat(curCaloriesValue);
@@ -167,7 +169,6 @@ function updateTables()
             }
             //$('#idDiffCal').hide(); // Tmp
             //console.log("curCaloriesValue="+curCaloriesValue)
-            curCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
             document.getElementById('idTotalCal').textContent = curCaloriesValue;
             document.getElementById('idTotalProtein').textContent = document.getElementById('tableNutValues').getAttribute('data-protein')+'%';
             document.getElementById('idTotalCarb').textContent = document.getElementById('tableNutValues').getAttribute('data-carb')+'%';

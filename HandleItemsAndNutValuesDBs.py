@@ -10,6 +10,7 @@
 
 import PySimpleGUI as psg
 import requests_cache
+import requests
 from bs4 import BeautifulSoup
 import urllib.parse
 from database_handler import DatabaseHandler
@@ -36,13 +37,13 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
             urls.append([name, href, name])
         return urls
 
-    baseQrUrl = fr'https://www.google.com/search?q=site:foodsdictionary.co.il'+urllib.parse.quote(f' {itemName} ערך תזונתי ')
+    baseQrUrl = fr'http://www.google.com/search?q=site:foodsdictionary.co.il'+urllib.parse.quote(f' {itemName} ערך תזונתי ')+"&num=20"
     searchCategory = 'Products'
-    searchKeyWords = 'ערכים תזונתיים'
     if itemName.find('מתכון') >= 0:
         searchCategory = 'Recipes'
         searchKeyWords = 'מתכון'
-        baseQrUrl = fr'https://www.google.com/search?q=site:foodsdictionary.co.il'+urllib.parse.quote(f' {itemName} ')
+        baseQrUrl = fr'http://www.google.com/search?q=site:foodsdictionary.co.il'+urllib.parse.quote(f' {itemName} ')+"&num=20"
+
     session = requests_cache.CachedSession('cacheUrlName')
     r = session.get(baseQrUrl)
     if (not r.from_cache):
@@ -51,28 +52,41 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
         #                       "Please Confirm")
         # if (ch != "Yes"):
         #     raise Exception(f'{itemName} not from cache')
-    soup = BeautifulSoup(r.text, 'html.parser')
+    # r = requests.get(baseQrUrl)
 
-    aElement = soup.find_all('a')
+    # # Debug
+    # f = open(r"c:/temp/tmp22.html",'w')
+    # f.write(r.text)
+    # raise Exception('file written')
+
+    import re
+    links = re.findall(rf'www\.foodsdictionary\.co\.il\/{searchCategory}[\w\%\/]*', r.text)
+    # links = re.findall(fr'www\.foodsdictionary\.co\.il\%2F{searchCategory}[\w\%]*',r.text)
+    # flag_is_unquote = False
+    # if (len(links)==0):
+    #     flag_is_unquote = True
+    #     links = re.findall(rf'www\.foodsdictionary\.co\.il\/{searchCategory}[\w\%\/]*', r.text)
     urls = list()
-    for item in aElement:
-        if (item.attrs['href']).__contains__(searchCategory) == False:
-            continue
-        itemText = item.getText(';')
-        if (itemText.__contains__(searchKeyWords) == False) and (itemText.__contains__('ערך תזונתי')==False):
-            continue
-        arrTxt = itemText.split(';')
-        selTxt = ''
-        for txt in arrTxt:
-            if txt.__contains__(searchKeyWords) or txt.__contains__('ערך תזונתי'):
-                selTxt = txt.replace('FoodsDictionary','')
-        href = item.attrs['href']
-        qq = href[href.find(searchCategory+r'/'):href.find(r'&')]
-        qa = (qq[qq.rfind('/') + 1:])
-        name = urllib.parse.unquote(qa.replace('%25','%'))
-        if (name.isnumeric()):
-            name = selTxt
-        urls.append([name,href,selTxt])
+    for link in links:
+        href = r'http://'+link
+
+        a_element_text_arr = re.findall(r"<a[^>]*?"+link+".*?\/a>",r.text)
+        soup = BeautifulSoup(a_element_text_arr[0], 'html.parser')
+        fname_element = soup.find('h3')
+        if fname_element is None:
+            name = soup.find('img').get('alt')
+        else:
+            name = soup.find('h3').text
+        name = name.removesuffix('FoodsDictionary').strip(' -')
+        # if (flag_is_unquote):
+        # else:
+        #     name = href[href.rfind(r"%2F")+3:]
+        #     for ii in range(3):
+        #         name = urllib.parse.unquote(name)
+        urls.append([name, href, name])
+        print(name)
+        print(href)
+
     return urls
 
 # Internal
@@ -101,7 +115,8 @@ def updateItemToDb(itemName,itemUrl,itemDesc, isExtended):
 def GuiFoodData():
     psg.set_options(font=("Arial Bold", 14),text_justification="right")
     lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
-    toprow = ['פרטים נוספים', 'קישור', 'שם המוצר']
+    # toprow = ['פרטים נוספים', 'קישור', 'שם המוצר']
+    toprow = ['קישור', 'שם המוצר']
     rows = [[]]
     tbl1 = psg.Table(values=rows, headings=toprow,
                      auto_size_columns=True,
@@ -137,11 +152,17 @@ def GuiFoodData():
                 url = item[1]
                 nameDetails = item[2]
                 listNutForTable.append([
-                    nameDetails, # Details
-                    url, # Link
+                    # nameDetails, # Details
+                    urllib.parse.unquote(urllib.parse.unquote(url)) , # Link
                     name # Item
                 ])
             tbl1.update(listNutForTable)
+            if len(urls)==0:
+                updateStsText = "לא נמצא"
+                itemName = values['_COMBOINPUT_']
+                msg = f"{itemName}' {updateStsText}'"
+                window['_StatusBar_'].update(msg)
+                print(msg)
         if '+CLICKED+' in event:
             selRow = event[2][0]
             if (selRow is not None) and (selRow >= 0):
