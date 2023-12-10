@@ -27,7 +27,8 @@ nutNameList = ['חומצת שומן אולאית-אומגה 9',
 
 def LoadTermTranslationTables():
     table_name = 'table_nutrition_attribute'
-    keys_values = DatabaseHandler().loadAllRows(table_name, ['nutritionName', 'hebrewDisplayName'])
+    dbh = DatabaseHandler(['pc'])
+    keys_values = dbh.loadAllRows(table_name, ['nutritionName', 'hebrewDisplayName'])
 
     keys_values.append(('gram','גרם'));
     keys_values.append(('miliGram','מ"ג'));

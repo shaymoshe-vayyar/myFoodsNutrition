@@ -191,6 +191,7 @@ foreach ($arrColsNames as $engNutName)
 $protein_perc = calc_perc($arrNutValues, 'protein');
 $carb_perc = calc_perc($arrNutValues, 'carbohydrate');
 $fat_perc = calc_perc($arrNutValues, 'total_lipid_fat');
+echo floatval($_SESSION['dailyNutritionGoalsDict']['energy']);//calc_perc($arrNutValues, 'energy');
 echo '<table id="tableNutValues" 
  data-totalcal="'.$arrNutValues['energy'].'"
         data-protein="'.$protein_perc.'" 

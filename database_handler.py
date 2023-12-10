@@ -103,41 +103,40 @@ class SqlConnection(object):
 #   * Delete Table (including backup option)
 
 class DatabaseHandler(object):
-    _sql_connection_ = SqlConnection(['pc','web'])
-    # _sql_connection_ = SqlConnection(['pc'])
-    # _sql_connection_ = SqlConnection(['pc'],'nutrition_app')
-    def __new__ (cls):
-        if not hasattr(cls, 'instance'):
-            cls.instance = super(DatabaseHandler, cls).__new__ (cls)
-        return cls.instance
+    _sql_connection_ = None # SqlConnection(['pc','web'])
+    # def __new__ (cls):
+    #     if not hasattr(cls, 'instance'):
+    #         cls.instance = super(DatabaseHandler, cls).__new__ (cls)
+    #     return cls.instance
+
+    # parameterized constructor
+    def __init__(self, sql_host : List[Literal['pc','web']],
+                 sql_db : str = None):
+        self._sql_host_ = sql_host
+        self._sql_db_ = sql_db
+        self.set_host(sql_host, sql_db)
 
     def set_host(self,host_list : List[Literal['pc','web']],
                  sql_db : str = None):
-        _sql_connection_ = SqlConnection(host_list, sql_db)
+        self._sql_connection_ = SqlConnection(host_list, sql_db)
 
     def checkIfTableExists(self, table_name : str):
         self._sql_connection_.execute(f"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = '{table_name}');")
         isExists = self._sql_connection_.fetchall()
         return (isExists[0][0]==1)
 
-    def CreateTable(self,
-                    table_name,
-                    colsNamesAndTypes: dict,
-                    PrimaryKeyName=None,
-                    isPrimaryAutoIncrement = True,
-                    colProp: dict[str,Literal['Index','UniqueIndex']] = None,
-                    colDefValues: dict = None,
-                    ifExists: Literal['fail', 'replace'] = 'fail'
-                    ):
+    def __prepare_columns_name_for_sql_request(self,
+                                               colsNamesAndTypes: dict,
+                                               colDefValues: dict = None):
+        colsName = list(colsNamesAndTypes.keys())
         strColWithTypes = ''
         strCols = ''
-        colsName = list(colsNamesAndTypes.keys())
         strDefValue = ''
         for colName in colsName:
             match colsNamesAndTypes[colName]:
-                case 'int64' | 'int':
+                case 'int64' | 'int' | 'numpy.int64':
                     typeName = 'INT'
-                case 'float64':
+                case 'float64' | 'numpy.float64':
                     typeName = 'DOUBLE'
                 case 'float' | 'float32':
                     typeName = 'FLOAT'  # Assuming float32 is enough
@@ -168,6 +167,18 @@ class DatabaseHandler(object):
             else:
                 strColWithTypes = colName + " " + typeName + strDefValue
                 strCols = colName
+        return strColWithTypes
+
+    def CreateTable(self,
+                    table_name,
+                    colsNamesAndTypes: dict,
+                    PrimaryKeyName=None,
+                    isPrimaryAutoIncrement = True,
+                    colProp: dict[str,Literal['Index','UniqueIndex']] = None,
+                    colDefValues: dict = None,
+                    ifExists: Literal['fail', 'replace'] = 'fail'
+                    ):
+        strColWithTypes = self.__prepare_columns_name_for_sql_request(colsNamesAndTypes, colDefValues)
         # Check if we need to override/append existing table
         if (ifExists == 'fail'):
             if self.checkIfTableExists(table_name):
@@ -304,4 +315,21 @@ class DatabaseHandler(object):
             self._sql_connection_.execute(f"SELECT {strColsNameToGet} FROM `{tableName}`;")
         values = self._sql_connection_.fetchall()
         return values
+
+    def get_columns_names(self, table_name : str):
+        # self._sql_connection_.execute(
+        #     f"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = {table_name};")
+        self._sql_connection_.execute(
+            f"SHOW COLUMNS FROM `{table_name}`;")
+
+        columns_info = self._sql_connection_.fetchall()
+        columns_names = [column_info[0] for column_info in columns_info]
+        return columns_names
+
+    def add_column(self, table_name: str, colsNamesAndTypes: dict, colDefValues: dict = None):
+        strColWithTypes = self.__prepare_columns_name_for_sql_request(colsNamesAndTypes, colDefValues)
+        add_columns_arr_string = ', '.join(['ADD COLUMN '+strColWithType for strColWithType in strColWithTypes.split(',')])
+        # print(add_columns_arr_string)
+        self._sql_connection_.execute(f"ALTER TABLE `{table_name}` {add_columns_arr_string};")
+        self._sql_connection_.commit()
 

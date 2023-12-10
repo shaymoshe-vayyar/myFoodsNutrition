@@ -3,7 +3,12 @@ import requests_cache
 from bs4 import BeautifulSoup
 #from myGui import showTable
 import pandas as pd
+from database_handler import DatabaseHandler
 
+
+## Nutirition Facts
+# Omega3 and Omega6
+# https://ods.od.nih.gov/factsheets/Omega3FattyAcids-HealthProfessional/#:~:text=The%20two%20major%20classes%20of,methyl%20group%20at%20the%20other.
 
 __flagChachingSite__ = True
 #__foodHebName__ = 'עגבניה'
@@ -29,7 +34,7 @@ def string_convert_to_search(str_inp : str,
     return '_'.join(arr_words_no_empty)
 
 
-def get_nutrition_values(itemName):
+def get_nutrition_values(dbh : DatabaseHandler, itemName):
     # urlFoods = 'curl https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&query=Cheddar%20Cheese'
 
     myFoodName = "tomato, raw"  # "tomato"
@@ -45,7 +50,7 @@ def get_nutrition_values(itemName):
 
     import database_handler
     import globalContants as gc
-    stored_nutrition_names = database_handler.DatabaseHandler().loadAllRows(gc.__table_nutrition_attribute_name__,['nutritionName','additionalNames'])
+    stored_nutrition_names = database_handler.dbh.loadAllRows(gc.__table_nutrition_attribute_name__,['nutritionName','additionalNames'])
     main_stored_nutrition_names = [stored_nutrition_names[ii][0] for ii in range(len(stored_nutrition_names))]
     additional_nutrition_names = [stored_nutrition_names[ii][1] for ii in range(len(stored_nutrition_names))]
     additional_names_to_nurtition_dict = dict()

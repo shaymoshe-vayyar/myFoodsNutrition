@@ -90,9 +90,9 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
     return urls
 
 # Internal
-def updateItemToDb(itemName,itemUrl,itemDesc, isExtended):
+def updateItemToDb(dbh : DatabaseHandler,itemName,itemUrl,itemDesc, isExtended):
     # Check if item already exists
-    retItem = DatabaseHandler().getItem(gc.__table_items_data_name__,'itemName',itemName)
+    retItem = dbh.getItem(gc.__table_items_data_name__,'itemName',itemName)
     if len(retItem) > 0:  # Already exists - check that info is the same
         print(f'{itemName} already exists')
         raise Exception(f"'{itemName}' already exists")
@@ -108,11 +108,11 @@ def updateItemToDb(itemName,itemUrl,itemDesc, isExtended):
     parsedItem['itemDescription'] = ''
     parsedItem['itemPhotoLink'] = ''
 
-    DatabaseHandler().addItem(gc.__table_items_data_name__,list(parsedItem.keys()),list(parsedItem.values()))
+    dbh.addItem(gc.__table_items_data_name__,list(parsedItem.keys()),list(parsedItem.values()))
     print(parsedItem)
     return True,False
 
-def GuiFoodData():
+def GuiFoodData(dbh : DatabaseHandler):
     psg.set_options(font=("Arial Bold", 14),text_justification="right")
     lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
     # toprow = ['פרטים נוספים', 'קישור', 'שם המוצר']
@@ -167,17 +167,17 @@ def GuiFoodData():
             selRow = event[2][0]
             if (selRow is not None) and (selRow >= 0):
                 selItem = tbl1.get()[selRow]
-                itemName = selItem[2]
                 if values['_MyRecCB_']:
-                    urlItem = selItem[1]
+                    urlItem = selItem[0]
                 else:
-                    urlItem = selItem[1][selItem[1].find('http'):]
-                itemDesc = selItem[0]
-                # ch = psg.popup_yes_no("You clicked row:{}, selected Item:{}, continue?".format(event[2][0], selItem[2]),"Please Confirm")
+                    urlItem = selItem[0] #[selItem[0].find('http'):]
+                itemDesc = selItem[1]
+                itemName = itemDesc
                 itemName = psg.popup_get_text('בחר שם למוצר', title="אנא אשר", default_text=f'{itemName}')
+                itemName = itemName.replace(',','__')
                 isExtended = values['_ExtendedCB_']
                 if itemName is not None:
-                    updateItemRes = updateItemToDb(itemName,urlItem,itemDesc,isExtended)
+                    updateItemRes = updateItemToDb(dbh,itemName,urlItem,itemDesc,isExtended)
                     if (updateItemRes[1]):
                         updateStsText = "כבר קיים"
                     else:
@@ -189,7 +189,7 @@ def GuiFoodData():
     window.close()
 
 
-def GuiFoodDataEdit():
+def GuiFoodDataEdit(dbh : DatabaseHandler):
     psg.set_options(font=("Arial Bold", 14),text_justification="right")
     lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
     toprow = ['קלוריות', 'שם המוצר', 'מספר']
@@ -253,7 +253,7 @@ def GuiFoodDataEdit():
                     search_str = cur_qr
 
             if (len(cur_qr)>1):
-                retItems = DatabaseHandler().searchItem(gc.__table_items_data_name__,
+                retItems = dbh.searchItem(gc.__table_items_data_name__,
                                           'itemName',
                                           search_str,
                                           search_mode=search_mode_inp)
@@ -279,13 +279,13 @@ def GuiFoodDataEdit():
     window.close()
 
 
-def createDBNutUnitsForDisplay():
+def createDBNutUnitsForDisplay(dbh : DatabaseHandler):
     dictNutUnitsForDisplayEng = dict()
     import HandleConversion
-    DatabaseHandler().CreateTable(gc.__tableConversionNutUnitsToDisplayName__, gc.__tableConversionNutUnitsToDisplayColNamesNTypes__,ifExists='replace')
+    dbh.CreateTable(gc.__tableConversionNutUnitsToDisplayName__, gc.__tableConversionNutUnitsToDisplayColNamesNTypes__,ifExists='replace')
     for nutNameHeb in HandleConversion.__dictNutNameToUnitsForDisplay__:
         nutNameEng = HandleConversion.__dictHebNameToEngName__[nutNameHeb]
         unitsEng = HandleConversion.__dictHebNameToEngName__[HandleConversion.__dictNutNameToUnitsForDisplay__[nutNameHeb]]
         dictNutUnitsForDisplayEng[nutNameEng] = unitsEng
-        DatabaseHandler().addItem(gc.__tableConversionNutUnitsToDisplayName__, list(gc.__tableConversionNutUnitsToDisplayColNamesNTypes__.keys()),
+        dbh.addItem(gc.__tableConversionNutUnitsToDisplayName__, list(gc.__tableConversionNutUnitsToDisplayColNamesNTypes__.keys()),
                                 [nutNameEng, unitsEng])

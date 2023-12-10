@@ -1,40 +1,40 @@
 additional_name, standard_name
-carbohydrate_by_difference
-alcohol_ethyl
-caffeine
-theobromine
-sugars_total_including_nlea
-calcium_ca
-iron_fe
-magnesium_mg
-phosphorus_p
-potassium_k
-sodium_na
-zinc_zn
-copper_cu
-selenium_se
-retinol
-vitamin_a_rae
-carotene_beta
-carotene_alpha
-vitamin_e_alpha_tocopherol
-vitamin_d_d2_+_d3
-cryptoxanthin_beta
-lutein_+_zeaxanthin
-vitamin_c_total_ascorbic_acid
-thiamin
-riboflavin
-niacin
-vitamin_b_6
-folate_total
-vitamin_b_12
-choline_total
-vitamin_k_phylloquinone
-folic_acid
-folate_food
-folate_dfe
-vitamin_e_added
-vitamin_b_12_added
+carbohydrate_by_difference,Carbohydrate
+alcohol_ethyl,alcohol # Add
+caffeine, caffeine # Add
+theobromine, theobromine # Add
+sugars_total_including_nlea,sugars
+calcium_ca,calcium
+iron_fe,iron
+magnesium_mg, magnesium
+phosphorus_p, phosphorus
+potassium_k, potassium
+sodium_na, sodium
+zinc_zn, zinc
+copper_cu, copper
+selenium_se, selenium
+retinol, vitamin_a
+vitamin_a_rae, vitamin_a
+carotene_beta, carotene_beta # Add
+carotene_alpha, carotene_alpha # Add
+vitamin_e_alpha_tocopherol, vitamin_e
+vitamin_d_d2_+_d3, vitamin_d
+cryptoxanthin_beta, cryptoxanthin_beta
+lutein_+_zeaxanthin, lutein_zeaxanthin
+vitamin_c_total_ascorbic_acid, vitamin_c
+thiamin, vitamin_b1
+riboflavin, vitamin_b2
+niacin, vitamin_b3
+vitamin_b_6, vitamin_b6
+folate_total, vitamin_b9
+vitamin_b_12, vitamin_b12
+choline_total, choline
+vitamin_k_phylloquinone, vitamin_k
+folic_acid, folic_acid
+folate_food, folate
+folate_dfe, folate
+vitamin_e_added, vitamin_e
+vitamin_b_12_added, vitamin_b12
 sfa_4:0
 sfa_6:0
 sfa_8:0
@@ -45,7 +45,7 @@ sfa_16:0
 sfa_18:0
 mufa_18:1
 pufa_18:2
-pufa_18:3
+pufa_18:3, omega_3
 pufa_20:4
 pufa_22:6_n_3_dha
 mufa_16:1

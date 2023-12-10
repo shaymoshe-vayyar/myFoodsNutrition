@@ -7,14 +7,6 @@
 # לחם שום 10
 # זית 5
 
-
-# App 0
-# import create_tables
-# create_tables.createEngHebTermsTableDB()
-# create_tables.createNutValuesTableDB()
-# create_tables.createNutUnitsToDisplayTableDB()
-# create_tables.createDailyNutGoalsTableDB()
-
 # # Tmp
 # import USDAParsing
 # USDAParsing.get_nutrition_values('')
@@ -23,8 +15,11 @@
 # # Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
 # # Then allow the user to select the item, change item name and it will be stored in the DB
 import HandleItemsAndNutValuesDBs
-HandleItemsAndNutValuesDBs.GuiFoodData()
-# HandleItemsAndNutValuesDBs.GuiFoodDataEdit()
+
+import database_handler
+dbh = database_handler.DatabaseHandler(['pc','web'])
+HandleItemsAndNutValuesDBs.GuiFoodData(dbh)
+# HandleItemsAndNutValuesDBs.GuiFoodDataEdit(dbh)
 
 # App2
 
