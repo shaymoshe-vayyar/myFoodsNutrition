@@ -7,9 +7,6 @@
 # לחם שום 10
 # זית 5
 
-# # Tmp
-# import USDAParsing
-# USDAParsing.get_nutrition_values('')
 
 # # App1
 # # Gui to get item to scan, show the optional results, maybe with images, optionaly add "סימון מלא"
@@ -17,11 +14,15 @@
 import HandleItemsAndNutValuesDBs
 
 import database_handler
-dbh = database_handler.DatabaseHandler(['pc','web'])
-HandleItemsAndNutValuesDBs.GuiFoodData(dbh)
+dbh = database_handler.DatabaseHandler(['pc'])  # ['pc','web']
+# HandleItemsAndNutValuesDBs.GuiFoodData(dbh)
 # HandleItemsAndNutValuesDBs.GuiFoodDataEdit(dbh)
 
 # App2
+# # Tmp
+# import USDAParsing
+# item_eng = HandleItemsAndNutValuesDBs.get_foods_translation('חסה')
+# USDAParsing.get_nutrition_values(dbh, item_eng)
 
 # TODO:
 #

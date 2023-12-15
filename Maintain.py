@@ -69,4 +69,4 @@ def update_table_items_data_for_nutritions(dbh : DatabaseHandler):
 
 dbh = DatabaseHandler(['pc'])
 # create_table_nutrition_attribute(dbh)
-update_table_items_data_for_nutritions(dbh)
+# update_table_items_data_for_nutritions(dbh)

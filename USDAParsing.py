@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 #from myGui import showTable
 import pandas as pd
 from database_handler import DatabaseHandler
-
+import globalContants as gc
 
 ## Nutirition Facts
 # Omega3 and Omega6
@@ -22,7 +22,7 @@ def string_convert_to_search(str_inp : str,
                              flag_sort : bool = True,
                              sort_order_up_ndown : bool = False):
     str_lower = str_inp.lower()
-    str_no_special = str_lower.replace(',',' ').replace('-',' ').replace('_',' ').replace('(',' ').replace(')',' ')
+    str_no_special = str_lower.replace(',',' ').replace('-',' ').replace('_',' ').replace('(',' ').replace(')',' ').replace(':','_')
     arr_words = str_no_special.split(' ')
     arr_words_no_empty = []
     for word in arr_words:
@@ -48,17 +48,16 @@ def get_nutrition_values(dbh : DatabaseHandler, itemName):
     # r = requests.get(url=urlFoodsGet) # TODO: Change to cached
     # print(r)
 
-    import database_handler
-    import globalContants as gc
-    stored_nutrition_names = database_handler.dbh.loadAllRows(gc.__table_nutrition_attribute_name__,['nutritionName','additionalNames'])
+    stored_nutrition_names = dbh.loadAllRows(gc.__table_nutrition_attribute_name__,['nutritionName','additionalNames'])
     main_stored_nutrition_names = [stored_nutrition_names[ii][0] for ii in range(len(stored_nutrition_names))]
     additional_nutrition_names = [stored_nutrition_names[ii][1] for ii in range(len(stored_nutrition_names))]
     additional_names_to_nurtition_dict = dict()
     for ii in range(len(additional_nutrition_names)):
         add_name = additional_nutrition_names[ii]
-        if len(add_name)>0:
-            add_name_arr = add_name.split(';')
+        if len(add_name)>1:
+            add_name_arr = add_name.split(',')
             for add_name_single in add_name_arr:
+                add_name_single = add_name_single.strip()
                 additional_names_to_nurtition_dict[add_name_single] = main_stored_nutrition_names[ii]
     tmp_data_list = r.json().get('foods')[0].get('foodNutrients')
     for nutrition_attr in tmp_data_list:

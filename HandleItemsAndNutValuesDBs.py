@@ -21,6 +21,28 @@ import glob
 
 
 # Internal
+def get_foods_translation(food_name : str):
+    # baseQrUrl = fr'https://www.bing.com/search?q=translate+{food_name}+to+english'
+    baseQrUrl = fr'https://www.bing.com/search?q=translate+{food_name}+to+english&qs=n&form=QBRE&sp=-1&lq=0&pq=translate+{food_name}+to+english&sc=10-25&sk='
+    session = requests_cache.CachedSession('cacheQrFoodTranslate')
+    r = session.get(baseQrUrl)
+    if (not r.from_cache):
+        print('not from cache!')
+    # r = requests.get(baseQrUrl)
+
+    # # Debug
+    # f = open(r"c:/temp/tmp33.html",'w')
+    # f.write(r.text)
+    # raise Exception('file written')
+
+    import re
+    list_translated_food_name = re.findall(rf'<span id="tta_tgt">([\w\s]*)</span>', r.text)
+    if (len(list_translated_food_name)!=1):
+        raise Exception(f'Could not find {food_name}!')
+    translated_food_name = list_translated_food_name[0]
+    print (translated_food_name)
+    return translated_food_name
+
 def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
     stringsToRemove = ['FoodsDictionary','- FoodsDictionary','ערכים תזונתיים',', ערכים תזונתיים','.html','ערך תזונתי של','ערך תזונתי',',','-']
     if (isMyRecipe):
@@ -193,6 +215,95 @@ def GuiFoodDataEdit(dbh : DatabaseHandler):
     psg.set_options(font=("Arial Bold", 14),text_justification="right")
     lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
     toprow = ['קלוריות', 'שם המוצר', 'מספר']
+    rows = [[]]
+    tbl1 = psg.Table(values=rows, headings=toprow,
+                     auto_size_columns=True,
+                     display_row_numbers=False,
+                     justification='right',
+                     key='-TABLE-',
+                     selected_row_colors='red on yellow',
+                     enable_events=True,
+                     expand_x=True,
+                     expand_y=True,
+                     enable_click_events=True)
+    tbl2 = psg.Table(values=[[]], headings=['field','value'],
+                     auto_size_columns=True,
+                     display_row_numbers=False,
+                     justification='left',
+                     key='-TABLEFIELDS-',
+                     selected_row_colors='red on yellow',
+                     enable_events=True,
+                     expand_x=True,
+                     expand_y=True,
+                     enable_click_events=True)
+    layout = [[psg.Combo(['Part of a Word','Word','SQL-Like Search','REGEXP'],
+                         enable_events=True,  readonly=False, key='_COMBOSRCHMODE_',default_value='Part of a Word'),
+               psg.Text('בחר מוצר')],
+              [psg.InputText('',enable_events=True,expand_x=True, key="_COMBOINPUT_")],
+              [psg.Button('Submit', visible=False, bind_return_key=True)],
+              [tbl1],
+              [tbl2],
+              [psg.Text('',key='_StatusBar_')]]
+    # [lst],
+    window = psg.Window("הוספת מוצרים", layout, size=(1200, 800), resizable=True,element_justification="right",finalize=True)
+    window["_COMBOINPUT_"].Widget.configure(justify="right")
+    selItem = None
+    list_fields = []
+
+    while True:
+        event, values = window.read()
+
+        # print("event:", event, "values:", values)
+        if event == psg.WIN_CLOSED:
+            break
+        if event == "Submit":
+            cur_qr = values['_COMBOINPUT_']
+            search_mode = values['_COMBOSRCHMODE_']
+            # 'Part of a Word','Word','SQL-Like Search','REGEXP'
+            match search_mode:
+                case 'Part of a Word':
+                    search_mode_inp = 'like'
+                    search_str = f"%{cur_qr}%"
+                case 'Word':
+                    search_mode_inp = 'regexp'
+                    search_str = f"\\\\b{cur_qr}\\\\b"
+                case 'SQL-Like Search':
+                    search_mode_inp = 'like'
+                    search_str = cur_qr
+                case 'REGEXP':
+                    search_mode_inp = 'regexp'
+                    search_str = cur_qr
+
+            if (len(cur_qr)>1):
+                retItems = dbh.searchItem(gc.__table_items_data_name__,
+                                          'itemName',
+                                          search_str,
+                                          search_mode=search_mode_inp)
+                print(len(retItems))
+                if len(retItems) == 0:
+                    window['_StatusBar_'].update(f"{itemName}' לא נמצא '")
+                else:
+                    listItemsForTable = []
+                    for item in retItems:
+                        listItemsForTable.append([
+                            item['_energy'], # Energy
+                            item['itemName'], # Name
+                            item['itemUID'] # ID
+                        ])
+                    tbl1.update(listItemsForTable)
+
+                    list_fields = []
+                    for key, value in retItems[0].items():
+                        list_fields.append([key,value])
+                    tbl2.update(list_fields)
+        elif event=='-TABLEFIELDS-':
+            print(list_fields[values['-TABLEFIELDS-'][0]])
+    window.close()
+
+def GuiFoodDataUSDATest(dbh : DatabaseHandler):
+    psg.set_options(font=("Arial Bold", 14),text_justification="right")
+    lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
+    toprow = ['כמות ב-DB הקיים', 'כמות ב-USDA', 'ערך תזונתי']
     rows = [[]]
     tbl1 = psg.Table(values=rows, headings=toprow,
                      auto_size_columns=True,
