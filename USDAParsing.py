@@ -33,11 +33,23 @@ def string_convert_to_search(str_inp : str,
 
     return '_'.join(arr_words_no_empty)
 
+def convert_units_to_default_usda(value : float, units : str):
+    ret_value = None
+    match units:
+        case 'G' | 'KCAL':
+            ret_value = value
+        case 'MG':
+            ret_value = 1e-3*value
+        case 'UG':
+            ret_value = 1e-6*value
+    if ret_value is None:
+        raise Exception('unit '+units+' not found!')
+    return ret_value
 
-def get_nutrition_values(dbh : DatabaseHandler, itemName):
+def get_nutrition_values(dbh : DatabaseHandler, myFoodName):
     # urlFoods = 'curl https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&query=Cheddar%20Cheese'
 
-    myFoodName = "tomato, raw"  # "tomato"
+    # myFoodName = "tomato, raw"  # "tomato"
     urlFoodsGet = "https://api.nal.usda.gov/fdc/v1/foods/search?api_key={ApiKey}&query={foodName}&dataType=Survey (FNDDS)".format(
         ApiKey=__myApiKey__, foodName=myFoodName)
 
@@ -59,84 +71,30 @@ def get_nutrition_values(dbh : DatabaseHandler, itemName):
             for add_name_single in add_name_arr:
                 add_name_single = add_name_single.strip()
                 additional_names_to_nurtition_dict[add_name_single] = main_stored_nutrition_names[ii]
-    tmp_data_list = r.json().get('foods')[0].get('foodNutrients')
-    for nutrition_attr in tmp_data_list:
-        #print(nutrition_attr['nutrientName'])
-        nut_name = string_convert_to_search(nutrition_attr['nutrientName'],
-                                            flag_sort=False)
-        if nut_name not in main_stored_nutrition_names:
-            if nut_name not in additional_names_to_nurtition_dict.keys():
-                print(nut_name)
+    nutrition_attrs_USDA_list = []
+    for food in r.json().get('foods'):
+        tmp_data_list = food.get('foodNutrients')
+        nutrition_attrs_USDA = dict()
+        for nutrition_attr in tmp_data_list:
+            # Covert name
+            #print(nutrition_attr['nutrientName'])
+            nut_name = string_convert_to_search(nutrition_attr['nutrientName'],
+                                                flag_sort=False)
+            # Find Name
+            nut_name_dict = nut_name
+            if nut_name not in main_stored_nutrition_names:
+                if nut_name in additional_names_to_nurtition_dict.keys():
+                    nut_name_dict = additional_names_to_nurtition_dict[nut_name]
+                else:
+                    print(nut_name)
+                    raise Exception('nut_name not found')
 
+            # Covert Units to default (Gram, KCAL)
+            value_defunits = convert_units_to_default_usda(nutrition_attr['value'],nutrition_attr['unitName'])
 
+            nutrition_attrs_USDA[nut_name_dict] = value_defunits
 
-
-    dictNutrientToHebrew = {"Protein": "חלבון",
-                            "Total lipid (fat)": "שומנים",
-                            "Carbohydrate, by difference": "פחמימות"}
-    for ii in range(3):  # len(r.json().get('foods')[0])):
-        nJSON = r.json().get('foods')[0].get('foodNutrients')[ii]
-        nName = nJSON['nutrientName']
-        nHebName = dictNutrientToHebrew[nName]
-        nUnitName = nJSON['unitName']
-        nValue = nJSON['value']  # TODO: Multiple by unitName
-        print("גרם {}={}".format(nValue, nHebName))
-
-# Old
-def ParseUrl(url):
-    if __flagChachingSite__:
-        session = requests_cache.CachedSession('cacheUrlName')
-        r = session.get(url)
-    else:
-        session = requests.session()
-        r = session.get(url)
-
-    textToParse = r.text
-    soup = BeautifulSoup(textToParse, 'html.parser')
-    table = soup.find('table', class_='nv-table')
-    nutValueTableRows = None
-    for nutData in table.find_all('tr'):
-        nutDataEnt = nutData.find_all('td')
-        if (len(nutDataEnt) > 1):
-            nutName = nutDataEnt[0].text
-            # m = re.search(r'\((.*?)\)', nutName)
-            nutUnits = nutName[nutName.find("(") + 1:nutName.find(")")]
-            if nutName.find("("):
-                nutNameWOUnits = nutName[:nutName.find("(")].strip() + (nutName[nutName.find(")") + 1:]).strip()
-            else:
-                nutNameWOUnits = nutName
-            nutValue = nutDataEnt[1].get('data-start')
-            if (nutValue is None):
-                nutValue = 0
-            # print("{} = {}, {}".format(nutNameWOUnits,nutValue,nutNameUnits))
-            if nutValueTableRows is None:
-                nutValueTableRows = pd.DataFrame({nutNameWOUnits: [nutValue, nutUnits]}, index=['nutValue', 'nutUnits'])
-            else:
-                nutValueTableRows.insert(0,nutNameWOUnits,[nutValue, nutUnits])
-        else:
-           for line in nutData.find_all('th'):
-                if line.get('id')=='sizeNameTd':
-                    if not line.text.find('100 גרם'):
-                        print(line)
-                        raise Exception('error in parsing, size is not 100 grams!')
-    # showTable(['Name', 'Value', 'Units'],nutValueTableRows)
-    # urlFoods = 'curl https://api.nal.usda.gov/fdc/v1/foods/search?api_key=DEMO_KEY&query=Cheddar%20Cheese'
-
-    myFoodName = dictHebrewToFNDDS[foodHebName]  # "tomato"
-    urlFoodsGet = "https://api.nal.usda.gov/fdc/v1/foods/search?api_key={ApiKey}&query={foodName}&dataType=Survey (FNDDS)".format(
-        ApiKey=myApiKey, foodName=myFoodName)
-    r = requests.get(url=urlFoodsGet) # TODO: Change to cached
-    # print(r)
-    dictNutrientToHebrew = {"Protein": "חלבון",
-                            "Total lipid (fat)": "שומנים",
-                            "Carbohydrate, by difference": "פחמימות"}
-    for ii in range(3):  # len(r.json().get('foods')[0])):
-        nJSON = r.json().get('foods')[0].get('foodNutrients')[ii]
-        nName = nJSON['nutrientName']
-        nHebName = dictNutrientToHebrew[nName]
-        nUnitName = nJSON['unitName']
-        nValue = nJSON['value']  # TODO: Multiple by unitName
-        print("גרם {}={}".format(nValue, nHebName))
-
-    return nutValueTableRows
+        nutrition_attrs_USDA['itemName'] = food.get('description')
+        nutrition_attrs_USDA_list.append(nutrition_attrs_USDA)
+    return nutrition_attrs_USDA_list
 

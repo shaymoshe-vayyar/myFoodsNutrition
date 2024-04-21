@@ -37,6 +37,8 @@ def create_table_nutrition_attribute(dbh : DatabaseHandler):
                                   ifExists='replace')
 
     key_names = list(ColNamesNTypes.keys())
+    len_n = len(df.values)
+    iii = 0.0
     for row in df.iterrows():
         values_list = list(row[1][key_names])
         # print(row[1]['nutritionUID'])
@@ -45,7 +47,10 @@ def create_table_nutrition_attribute(dbh : DatabaseHandler):
                 if math.isnan(values_list[ii]):
                     values_list[ii] = ''
         dbh.addItem(tableName,key_names,values_list)
+        ii = iii+1
+        print(f'{iii/len_n*100} %')
 
+# Add Nutrition to existing table of items with default value
 def update_table_items_data_for_nutritions(dbh : DatabaseHandler):
     food_items_columns_names = dbh.get_columns_names(gc.__table_items_data_name__)
     current_item_nutritions = []
@@ -67,6 +72,8 @@ def update_table_items_data_for_nutritions(dbh : DatabaseHandler):
                    colsNamesAndTypes,
                    colDefValues)
 
-dbh = DatabaseHandler(['pc'])
-# create_table_nutrition_attribute(dbh)
+dbh = DatabaseHandler(['pc','web'])
+create_table_nutrition_attribute(dbh)
 # update_table_items_data_for_nutritions(dbh)
+
+print('Done')

@@ -17,30 +17,78 @@ from database_handler import DatabaseHandler
 
 import globalContants as gc
 import glob
+import USDAParsing
+import requests, uuid, json
 
 
+################################
+def get_foods_translation(food_name : str):
+    key = "6aa7bf02a8dc4161ac0f580d670c40d8"
+    endpoint = "https://api.cognitive.microsofttranslator.com"
+    # location, also known as region.
+    # required if you're using a multi-service or regional (not global) resource. It can be found in the Azure portal on the Keys and Endpoint page.
+    location = "eastasia"
+
+    path = '/translate'
+    constructed_url = endpoint + path
+
+    params = {
+        'api-version': '3.0',
+        'from': 'he',
+        'to': 'en'
+    }
+
+    headers = {
+        'Ocp-Apim-Subscription-Key': key,
+        # location required if you're using a multi-service or regional (not global) resource.
+        'Ocp-Apim-Subscription-Region': location,
+        'Content-type': 'application/json',
+        'X-ClientTraceId': str(uuid.uuid4())
+    }
+
+    # You can pass more than one object in body.
+    body = [{
+        'text': food_name
+    }]
+
+    request = requests.post(constructed_url, params=params, headers=headers, json=body)
+    response = request.json()
+
+    # print(json.dumps(response, sort_keys=True, ensure_ascii=False, indent=4, separators=(',', ': ')))
+    if len(response) > 1:
+        raise Exception("Error reponse of translation length should be 1")
+    res_translation = response[0]['translations']
+    if len(res_translation) > 1:
+        raise Exception("Error reponse of translation outputs should be 1")
+    return res_translation[0]['text']
+
+################################
 
 # Internal
-def get_foods_translation(food_name : str):
-    # baseQrUrl = fr'https://www.bing.com/search?q=translate+{food_name}+to+english'
-    baseQrUrl = fr'https://www.bing.com/search?q=translate+{food_name}+to+english&qs=n&form=QBRE&sp=-1&lq=0&pq=translate+{food_name}+to+english&sc=10-25&sk='
+def get_foods_translation_old(food_name : str):
+    str_translate = 'תרגום'
+    str_to_english = 'לאנגלית'
+    baseQrUrl = fr'https://www.bing.com/search?q={str_translate}+{food_name}+{str_to_english}&FORM=AWRE'
+    # baseQrUrl = fr'https://www.bing.com/search?q=translate+{food_name}+to+english&qs=n&form=QBRE&sp=-1&lq=0&pq=translate+{food_name}+to+english&sc=10-25&sk='
     session = requests_cache.CachedSession('cacheQrFoodTranslate')
     r = session.get(baseQrUrl)
     if (not r.from_cache):
         print('not from cache!')
-    # r = requests.get(baseQrUrl)
+    r = requests.get(baseQrUrl)
 
-    # # Debug
-    # f = open(r"c:/temp/tmp33.html",'w')
-    # f.write(r.text)
+    # Debug
+    f = open(r"c:/temp/tmp33.html",'w')
+    f.write(r.text)
     # raise Exception('file written')
 
     import re
     list_translated_food_name = re.findall(rf'<span id="tta_tgt">([\w\s]*)</span>', r.text)
     if (len(list_translated_food_name)!=1):
-        raise Exception(f'Could not find {food_name}!')
+        # raise Exception(f'Could not find {food_name}!')
+        print(f'Could not find {food_name}!')
+        return None
     translated_food_name = list_translated_food_name[0]
-    print (translated_food_name)
+    # print (translated_food_name)
     return translated_food_name
 
 def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
@@ -82,7 +130,7 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
     # raise Exception('file written')
 
     import re
-    links = re.findall(rf'www\.foodsdictionary\.co\.il\/{searchCategory}[\w\%\/]*', r.text)
+    links = re.findall(rf'www\.foodsdictionary\.co\.il\/{searchCategory}[\w\%\/-]*', r.text)
     # links = re.findall(fr'www\.foodsdictionary\.co\.il\%2F{searchCategory}[\w\%]*',r.text)
     # flag_is_unquote = False
     # if (len(links)==0):
@@ -99,7 +147,7 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
             name = soup.find('img').get('alt')
         else:
             name = soup.find('h3').text
-        name = name.removesuffix('FoodsDictionary').strip(' -')
+        name = name.replace('ערכים תזונתיים','').replace('ערך תזונתי','').removesuffix('FoodsDictionary').strip().strip('של').strip(' -').strip(',').strip()
         # if (flag_is_unquote):
         # else:
         #     name = href[href.rfind(r"%2F")+3:]
@@ -196,9 +244,9 @@ def GuiFoodData(dbh : DatabaseHandler):
                 itemDesc = selItem[1]
                 itemName = itemDesc
                 itemName = psg.popup_get_text('בחר שם למוצר', title="אנא אשר", default_text=f'{itemName}')
-                itemName = itemName.replace(',','__')
-                isExtended = values['_ExtendedCB_']
                 if itemName is not None:
+                    itemName = itemName.replace(',', '__')
+                    isExtended = values['_ExtendedCB_']
                     updateItemRes = updateItemToDb(dbh,itemName,urlItem,itemDesc,isExtended)
                     if (updateItemRes[1]):
                         updateStsText = "כבר קיים"
@@ -303,9 +351,8 @@ def GuiFoodDataEdit(dbh : DatabaseHandler):
 def GuiFoodDataUSDATest(dbh : DatabaseHandler):
     psg.set_options(font=("Arial Bold", 14),text_justification="right")
     lst = psg.Listbox([], expand_x=True, key="listboxW", visible=True)
-    toprow = ['כמות ב-DB הקיים', 'כמות ב-USDA', 'ערך תזונתי']
-    rows = [[]]
-    tbl1 = psg.Table(values=rows, headings=toprow,
+    toprow = ['קלוריות', 'שם המוצר', 'מספר']
+    tbl1 = psg.Table(values=[[]], headings=toprow,
                      auto_size_columns=True,
                      display_row_numbers=False,
                      justification='right',
@@ -315,7 +362,17 @@ def GuiFoodDataUSDATest(dbh : DatabaseHandler):
                      expand_x=True,
                      expand_y=True,
                      enable_click_events=True)
-    tbl2 = psg.Table(values=[[]], headings=['field','value'],
+    tbl11 = psg.Table(values=[[]], headings=toprow,
+                     auto_size_columns=True,
+                     display_row_numbers=False,
+                     justification='right',
+                     key='-TABLE_USDA_FOODS-',
+                     selected_row_colors='red on yellow',
+                     enable_events=True,
+                     expand_x=True,
+                     expand_y=True,
+                     enable_click_events=True)
+    tbl2 = psg.Table(values=[[]], headings=['field','USDA value','Existing value'],
                      auto_size_columns=True,
                      display_row_numbers=False,
                      justification='left',
@@ -329,8 +386,10 @@ def GuiFoodDataUSDATest(dbh : DatabaseHandler):
                          enable_events=True,  readonly=False, key='_COMBOSRCHMODE_',default_value='Part of a Word'),
                psg.Text('בחר מוצר')],
               [psg.InputText('',enable_events=True,expand_x=True, key="_COMBOINPUT_")],
+              [psg.InputText('',enable_events=False,expand_x=True, key="_INPUT_HEB_SRCH_"),psg.InputText('',enable_events=False,expand_x=True, key="_INPUTENGWORD_")],
               [psg.Button('Submit', visible=False, bind_return_key=True)],
               [tbl1],
+              [tbl11],
               [tbl2],
               [psg.Text('',key='_StatusBar_')]]
     # [lst],
@@ -339,13 +398,21 @@ def GuiFoodDataUSDATest(dbh : DatabaseHandler):
     selItem = None
     list_fields = []
 
+    ## Tmp
+    window['_COMBOINPUT_'].update('גזר')
+    flag_override = True
+
     while True:
-        event, values = window.read()
+        if flag_override:
+            event, values = window.read(1)
+        else:
+            event, values = window.read()
 
         # print("event:", event, "values:", values)
         if event == psg.WIN_CLOSED:
             break
-        if event == "Submit":
+        if flag_override or event == "Submit":
+            flag_override = False
             cur_qr = values['_COMBOINPUT_']
             search_mode = values['_COMBOSRCHMODE_']
             # 'Part of a Word','Word','SQL-Like Search','REGEXP'
@@ -363,30 +430,59 @@ def GuiFoodDataUSDATest(dbh : DatabaseHandler):
                     search_mode_inp = 'regexp'
                     search_str = cur_qr
 
-            if (len(cur_qr)>1):
-                retItems = dbh.searchItem(gc.__table_items_data_name__,
-                                          'itemName',
-                                          search_str,
-                                          search_mode=search_mode_inp)
-                print(len(retItems))
-                if len(retItems) == 0:
-                    window['_StatusBar_'].update(f"{itemName}' לא נמצא '")
-                else:
-                    listItemsForTable = []
-                    for item in retItems:
-                        listItemsForTable.append([
-                            item['_energy'], # Energy
-                            item['itemName'], # Name
-                            item['itemUID'] # ID
-                        ])
-                    tbl1.update(listItemsForTable)
+            window['_INPUT_HEB_SRCH_'].update(f"{cur_qr}")
 
-                    list_fields = []
-                    for key, value in retItems[0].items():
-                        list_fields.append([key,value])
-                    tbl2.update(list_fields)
+            # Get Translated word to english
+            item_name_eng = get_foods_translation(cur_qr)
+            if item_name_eng is None:
+                window['_INPUTENGWORD_'].update(f"Not Found")
+            else:
+                window['_INPUTENGWORD_'].update(f"{item_name_eng}")
+
+                # Find USDA
+                nutrition_attrs_USDA_list = USDAParsing.get_nutrition_values(dbh, item_name_eng)
+
+                if (len(nutrition_attrs_USDA_list)>0):
+                    listItemsForTable = []
+                    for item in nutrition_attrs_USDA_list:
+                        listItemsForTable.append([
+                            item['energy'],  # Energy
+                            item['itemName'],  # Name
+                            ''  # ID
+                        ])
+                    tbl11.update(listItemsForTable)
+                    nutrition_values_USDA = nutrition_attrs_USDA_list[0]
+
+                if (len(cur_qr)>1):
+                    retItems = dbh.searchItem(gc.__table_items_data_name__,
+                                              'itemName',
+                                              search_str,
+                                              search_mode=search_mode_inp)
+                    # print(len(retItems))
+                    if len(retItems) == 0:
+                        window['_StatusBar_'].update(f"{cur_qr}' לא נמצא '")
+                    else:
+                        listItemsForTable = []
+                        for item in retItems:
+                            listItemsForTable.append([
+                                item['_energy'], # Energy
+                                item['itemName'], # Name
+                                item['itemUID'] # ID
+                            ])
+                        tbl1.update(listItemsForTable)
+
+                        list_fields = []
+                        for key, value in retItems[0].items():
+                            if key.startswith('_') and key.strip('_') in nutrition_values_USDA.keys():
+                                list_fields.append([key,nutrition_values_USDA[key.strip('_')],value])
+                            else:
+                                list_fields.append([key, '', value])
+                        tbl2.update(list_fields)
+
+
         elif event=='-TABLEFIELDS-':
             print(list_fields[values['-TABLEFIELDS-'][0]])
+
     window.close()
 
 

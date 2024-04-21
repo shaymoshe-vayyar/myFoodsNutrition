@@ -110,7 +110,7 @@
         <br>
         <div>                                            <!-- Search Query -->
             <input type="search" dir="rtl" name="qr" id="qr"
-                   placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" onsearch="qrSearchSubmitted()"
+                   placeholder="מה אכלתם היום?" value="" oninput="updateQRSuggestions()" 
                    aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
 
             <ul popover id="qrpopover" style="position:relative; inset:unset; top:40px"></ul>
@@ -342,7 +342,7 @@ function updateQRSuggestions() {
 }
 function qrSearchSubmitted() {
     // if (e.key === 'Enter' || e.keyCode === 13) {
-    // console.log('submitted');
+//    console.log('submitted');
     itemToAdd = $('#qr').data('selItem');
     //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
     dateToAdd = document.getElementById("picker").value;
@@ -377,6 +377,15 @@ function qrSearchSubmitted() {
     }
     // }
 }
+
+let textqr = document.getElementById("qr");
+textqr.addEventListener("keyup", (e) => {
+  // console.log(`Key "${e.key}" ["${e.keyCode}"] released [event: keyup]`);
+  if (e.keyCode == 13)
+  {
+      qrSearchSubmitted();
+  }
+});
 
     function removeItemFromDaily(itemIndex,strTxt)
     {

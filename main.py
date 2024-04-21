@@ -14,8 +14,8 @@
 import HandleItemsAndNutValuesDBs
 
 import database_handler
-dbh = database_handler.DatabaseHandler(['pc'])  # ['pc','web']
-# HandleItemsAndNutValuesDBs.GuiFoodData(dbh)
+dbh = database_handler.DatabaseHandler(['pc','web'])  # ['pc','web']
+HandleItemsAndNutValuesDBs.GuiFoodData(dbh)
 # HandleItemsAndNutValuesDBs.GuiFoodDataEdit(dbh)
 
 # App2
@@ -23,6 +23,7 @@ dbh = database_handler.DatabaseHandler(['pc'])  # ['pc','web']
 # import USDAParsing
 # item_eng = HandleItemsAndNutValuesDBs.get_foods_translation('חסה')
 # USDAParsing.get_nutrition_values(dbh, item_eng)
+# HandleItemsAndNutValuesDBs.GuiFoodDataUSDATest(dbh)
 
 # TODO:
 #
