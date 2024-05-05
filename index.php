@@ -224,13 +224,19 @@ function updateQRSuggestions() {
     // console.log("data="+$('#qr').data('selItem'));
     $('#qr').data('selItem','');
     $('#qr').data('quantity',0);
-    if (dropDownText == "") {
+    if (dropDownText.trim() == "") {
         document.getElementById("qrpopover").innerHTML = '';
         return;
       } else {
-        numbersInStr = dropDownText.match(/\b(\d+\.?\d?)\b/g)
-        engWordsInStr = dropDownText.match(/\b[^\d\W]+\b/g)
-        hebWordsInStr = dropDownText.match(/[\u0590-\u05FF]+/g)
+        indexOfStarCharInStr = dropDownText.indexOf("*");
+        isStarCharInStr = (indexOfStarCharInStr >= 0);
+        $('#qr').data('isStarCharInStr',isStarCharInStr);
+        if (isStarCharInStr){ // remove the '*' for the rest of the search
+            dropDownText = dropDownText.substring(0,indexOfStarCharInStr) + dropDownText.slice(indexOfStarCharInStr+1);
+        }
+        numbersInStr = dropDownText.match(/\b(\d+\.?\d?)\b/g);
+        engWordsInStr = dropDownText.match(/\b[^\d\W]+\b/g);
+        hebWordsInStr = dropDownText.match(/[\u0590-\u05FF]+/g);
 
         numDesiredQuantity = 100;
         if ((numbersInStr != null) && (numbersInStr.length>0)) {
@@ -283,7 +289,7 @@ function updateQRSuggestions() {
                           if (arrOptions[i].length > 0)
                           {
                               arrPair = arrOptions[i].split(','); // Name, Calories
-                              const name = arrPair[0]
+                              const name = arrPair[0];
                               const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
                                //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
                               text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
@@ -300,6 +306,17 @@ function updateQRSuggestions() {
                                       {
                                          flag_is_submit = true; 
                                       }
+//                                      else
+//                                      {
+//                                          const words_in_name = name.split(' ');
+//                                          for (let ii=0;ii<words_in_name.length;ii++)
+//                                          {
+//                                            if (words_in_name[ii].trim() == hebWordsInStr.join(' ').trim())
+//                                            {
+//                                               flag_is_submit = true; 
+//                                            }
+//                                          }
+//                                      }
                                   }
                                   if (flag_is_submit)
                                   {
@@ -326,7 +343,8 @@ function updateQRSuggestions() {
               }
           };
             //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
-            xmlhttp.open("GET","findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0",true);
+            console.log("findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0"+"&isStarCharInStr="+isStarCharInStr)
+            xmlhttp.open("GET","findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0"+"&isStarCharInStr="+isStarCharInStr,true);
 
           xmlhttp.send();
         }

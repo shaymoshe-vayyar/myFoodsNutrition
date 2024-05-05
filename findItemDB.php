@@ -7,6 +7,8 @@ $q = $_GET['q'];
 
 $isFull = $_GET['isFull'];
 
+$isStarCharInStr = $_GET['isStarCharInStr'];
+
 include 'globals.php';
 //$con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
 if (!$con) {
@@ -29,7 +31,16 @@ if ($isFull == '1') {
 }
 else {
     //$sql = "SELECT itemName,Energy FROM `db_items_nut` WHERE itemName LIKE '" . $q . "%';";
-    $sql = "SELECT itemName,_energy FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}';";
+    if ($isStarCharInStr=='true')
+    {
+        //echo 'true';
+        $sql = "SELECT itemName,_energy FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}';";
+    }
+    else
+    {
+        //echo 'false';
+        $sql = "SELECT itemName,_energy FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}' AND isExtended=0;";        
+    }
     $result = mysqli_query($con, $sql);
 
     while ($row = mysqli_fetch_array($result)) {
