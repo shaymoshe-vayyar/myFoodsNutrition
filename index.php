@@ -62,6 +62,7 @@
     <button onclick='document.getElementById("mySidebar").style.display = "none";' class="w3-button w3-display-topright w3-large">X</button>
     <h3 class="w3-bar-item w3-button"><a href="index.php">יומן מעקב יומי</a></h3>
     <h3 class="w3-bar-item w3-button"><a href="AddingFoodPage.php">הוספה של מאכל</a></h3>
+    <h3 class="w3-bar-item w3-button"><a href="AddingRecipePage.php">הוספה של מתכון</a></h3>
     <h3 class="w3-bar-item w3-button" href="#">הגדרות</h3>
 </nav>
 <header class="w3-main w3-cell-row" >
@@ -226,6 +227,7 @@ function updateQRSuggestions() {
     $('#qr').data('quantity',0);
     if (dropDownText.trim() == "") {
         document.getElementById("qrpopover").innerHTML = '';
+        $('#qrpopover').hide();
         return;
       } else {
         indexOfStarCharInStr = dropDownText.indexOf("*");
@@ -277,7 +279,7 @@ function updateQRSuggestions() {
               //console.log(this.readyState); //
               //console.log(this.status); //
               if (this.readyState == 4 && this.status == 200) {
-                  //console.log(this.responseText);
+                  //console.log("responseText="+this.responseText);
                   text = '';
                   if (this.responseText.length > 1)
                   {
@@ -288,9 +290,10 @@ function updateQRSuggestions() {
                       for (let i = 0; i < arrOptions.length; i++) {
                           if (arrOptions[i].length > 0)
                           {
-                              arrPair = arrOptions[i].split(','); // Name, Calories
+                              arrPair = arrOptions[i].split(','); // Name, Calories, itemUID
                               const name = arrPair[0];
                               const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
+                              const itemUID = arrPair[2];
                                //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
                               text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
                               if ((numbersInStr != null) && (numbersInStr.length>0)) // Only one suggestion
@@ -360,20 +363,19 @@ function updateQRSuggestions() {
 }
 function qrSearchSubmitted() {
     // if (e.key === 'Enter' || e.keyCode === 13) {
-//    console.log('submitted');
+    console.log('submitted');
     itemToAdd = $('#qr').data('selItem');
     //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
     dateToAdd = document.getElementById("picker").value;
     quantity = $('#qr').data('quantity');
     mealTimeSlot = '';
-    // console.log("itemToAdd=" + itemToAdd);
-    // console.log("itemToAdd=" + itemToAdd+'quantity='+quantity);
     if ((itemToAdd.length > 0) && quantity > 0)
     {
         var xmlhttp = new XMLHttpRequest();
         xmlhttp.onreadystatechange = function () {
             //console.log(this.readyState); //
             //console.log(this.status); //
+            //console.log("responseText="+this.responseText);
             if (this.readyState == 4 && this.status == 200) {
                 // console.log(this.responseText);
                 //document.getElementById('blabla').textContent = this.responseText;
@@ -389,6 +391,7 @@ function qrSearchSubmitted() {
                 $('#qrpopover').hide();
             }
         };
+        //console.log("itemToAdd=" + itemToAdd+', dateToAdd='+dateToAdd+', quantity='+quantity+', mealTimeSlot='+mealTimeSlot);
         xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
 
         xmlhttp.send();

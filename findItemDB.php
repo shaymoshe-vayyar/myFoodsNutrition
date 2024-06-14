@@ -34,17 +34,17 @@ else {
     if ($isStarCharInStr=='true')
     {
         //echo 'true';
-        $sql = "SELECT itemName,_energy FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}';";
+        $sql = "SELECT itemName,_energy, itemUID FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}';";
     }
     else
     {
         //echo 'false';
-        $sql = "SELECT itemName,_energy FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}' AND isExtended=0;";        
+        $sql = "SELECT itemName,_energy, itemUID FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}' AND isExtended=0;";        
     }
     $result = mysqli_query($con, $sql);
 
     while ($row = mysqli_fetch_array($result)) {
-        echo $row[0] . ',' . $row[1] . ';';
+        echo $row[0] . ',' . $row[1] . "," . $row[2] . ';';
     }
 
 }

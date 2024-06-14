@@ -1,5 +1,5 @@
 <?php
-// Link to MySql DB Management: http://localhost/phpmyadmin/index.php?route=/database/structure&server=1&db=ajax_demo&table=user
+// Link to MySql DB Management: http://localhost:12345/phpmyadmin
 // db_items_nut,
 
 // Help function
@@ -155,7 +155,7 @@ function readNutritionAttribute($tableName, $con)
 }
 
 
-    $arrColsNamesToDisplay = [];
+$arrColsNamesToDisplay = [];
 $arrNutValuesToDisplay = [];
 $arrNutUnitsToDisplay = [];
 foreach ($arrColsNames as $engNutName)

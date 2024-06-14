@@ -41,6 +41,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
     <button onclick='document.getElementById("mySidebar").style.display = "none";' class="w3-button w3-display-topright w3-large">X</button>
     <h3 class="w3-bar-item w3-button"><a href="index.php">יומן מעקב יומי</a></h3>
     <h3 class="w3-bar-item w3-button"><a href="AddingFoodPage.php">הוספה של מאכל</a></h3>
+    <h3 class="w3-bar-item w3-button"><a href="AddingRecipePage.php">הוספה של מתכון</a></h3>
     <h3 class="w3-bar-item w3-button" href="#">הגדרות</h3>
 </nav>
 <header class="w3-main w3-cell-row" >
