@@ -6,7 +6,7 @@
 
 $str_arr_data = file_get_contents('php://input');
 $name_of_recipe = $_GET['name_of_recipe'];
-$flag_is_update_db = $_GET['$flag_is_update_db'];
+$flag_is_update_db = $_GET['flag_is_update_db'];
 
 include 'globals.php';
 $con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
@@ -54,13 +54,34 @@ foreach ($arr_total_nut_value as $nutrition_name => $prop_value)
 // Save to DB if asked
 if ($flag_is_update_db)
 {
-    //$sql = "INSERT INTO table_daily_items (`itmDate`, `itemName`, `quantity`, `mealTimeSlot`, `itmTime`) VALUES ('".$date."', '".$itemName."', ".$quantity.", '".$mealTimeSlot."', '".$time."');";
-    printf("SQL query = %s\n",$sql);
-//    $result = mysqli_query($con, $sql);
+    $str_column_names = "";
+    $str_column_values = "";
+    // itemUID is auto gen -> no need to pass
+    // itemName
+    $str_column_names += "'itemName'";
+    $str_column_values += "'{$name_of_recipe}', ";
+    // categoryType
+    $str_column_names += "'categoryType'";
+    $str_column_values += "'general', ";
+    // isExtended
+    $str_column_names += "'isExtended'";
+    $str_column_values += "'1', ";
+    
     foreach ($arr_total_nut_value as $nutrition_name => $prop_value)
     {
-//        $val 
+        $str_column_names = $str_column_names."'_{$nutrition_name}', ";
+        $str_column_values = $str_column_values."'{$prop_value}', ";
     }
+    // Remove last ', '
+    $str_column_names = substr($str_column_names, 0, -2);
+    $str_column_values = substr($str_column_values, 0, -2);
+
+    echo $str_column_names."\n";
+    echo $str_column_values;
+    //$sql_str = "INSERT INTO table_daily_items (`itmDate`, `itemName`, `quantity`, `mealTimeSlot`, `itmTime`) VALUES ('".$date."', '".$itemName."', ".$quantity.", '".$mealTimeSlot."', '".$time."');";
+    $sql_str = "INSERT INTO table_items_data ({$str_column_names}) VALUES ({$str_column_values});";
+//    printf("SQL query = %s\n",$sql);
+//    $result = mysqli_query($con, $sql);
 }
 
 

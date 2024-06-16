@@ -144,7 +144,11 @@ def GetListOfOptionalUrls(itemName, isMyRecipe : bool):
         soup = BeautifulSoup(a_element_text_arr[0], 'html.parser')
         fname_element = soup.find('h3')
         if fname_element is None:
-            name = soup.find('img').get('alt')
+            tmpImg = soup.find('img')
+            if tmpImg is not None:
+                name = tmpImg.get('alt')
+            else:
+                continue
         else:
             name = soup.find('h3').text
         name = name.replace('ערכים תזונתיים','').replace('ערך תזונתי','').removesuffix('FoodsDictionary').strip().strip('של').strip(' -').strip(',').strip()

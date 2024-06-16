@@ -312,7 +312,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
             
             function sendData(arr_items, name_of_recipe = null)
             {
-                flag_is_update_db = !(name_of_recipe === null);
+                let flag_is_update_db = 0; 
+                if (!(name_of_recipe === null))
+                {
+                    flag_is_update_db = 1;
+                }
                 const arr_items2 = arr_items;
 //                [
 //                    {"name":"item1", "numDesiredQuantity":"39", "itemUID":11},
