@@ -52,7 +52,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
         <div class="w3-container w3-cell-row" style="position: relative;">
             <br>
             <div>                                            <!-- Search Query -->
-                <textarea name="qrlist" id="qrlist" dir="rtl" placeholder="הכנס את הרשימה כאן" required autocomplete="off" style='width: 100%;' oninput="updateQRList(event)"></textarea>
+                <textarea name="qrlist" id="qrlist" dir="rtl" placeholder="הכנס את הרשימה כאן" required autocomplete="off" style='width: 100%;' oninput="updateQRList(event)" onpaste="updateQRListUponPaste(event)" ></textarea>
 
                 <ul popover id="qrpopover" style="position:relative; inset:unset; top:40px"></ul>
             </div>                                                              <!-- Search Query -->
@@ -83,7 +83,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
         <div>
             <div >                                            <!-- Item Name Query -->
                 <div class="w3-cell-row">
-                    <div class="w3-cell" style="width:15%;"><button class="w3-button" id="buttonInsertRecipt" name="buttonInsertRecipt" style="background-color: lightyellow"  onclick='' disabled>שמור מתכון</button></div>
+                    <div class="w3-cell" style="width:15%;"><button class="w3-button" id="buttonInsertRecipt" name="buttonInsertRecipt" style="background-color: lightyellow"  onclick='insertRecite()' disabled>שמור מתכון</button></div>
                 <div class="w3-cell" style="w3-rest"><input type="search" dir="rtl" name="qrItemName" id="qrItemName"
                    placeholder="שם המתכון" value="" oninput="search_recipe_name()" 
                    aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#srchRecPopover').hide();"></div>
@@ -104,6 +104,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 
                 if (item_str.trim() == "") {
                     document.getElementById("qrpopover").innerHTML = '';
+                    $('#qrpopover').hide();
                     return;
                 } else {
                     if (flag_is_extended == false)
@@ -129,7 +130,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                             console.error('too many numbers');
                         } else
                         {
-                            numDesiredQuantity = parseFloat(numbersInStr[0])
+                            numDesiredQuantity = parseFloat(numbersInStr[0]);
                             // console.log('------------------------------');
                             // console.log(numDesiredQuantity); //
                             // console.log('------------------------------');
@@ -141,7 +142,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                         if (hebWordsInStr.join(' ').includes('מחק שורה'))
                         {
                             // console.log(hebWordsInStr.join(' ').includes('מחק שורה'));
-                            clearQR(); // TODO
+                            clearQR(); 
                             return;
                         }
                          //const mypopover = document.getElementById("qrpopover");
@@ -264,8 +265,17 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
 //                document.getElementById("tableofidentifieditems").text = "bbbbb\nqqq";
 //                sendData();
             }
-            function generateListOfItemsWithProp(str_items_q_textbox)
+            function delay_tmp(milliseconds) {
+                return new Promise(resolve => {
+                    setTimeout(resolve, milliseconds);
+                });
+            }
+            async function delay() {
+                await delay_tmp(100);
+            }
+            function generateListOfItemsWithProp(flag_is_store = false)
             {
+                const str_items_q_textbox = document.getElementById("qrlist").value;
                 const lines = str_items_q_textbox.split("\n");
                 const items_list_ta = document.getElementById("ItemsListTextarea");
                 items_list_ta.value = "";
@@ -274,13 +284,14 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 const arr_items = [];
                 for (let i = 0; i < lines.length; i++) 
                 {
-                    const line = lines[i];
+                    const line = lines[i].trim();
                     if (line.length == 0) // Empty line -> ignore
                     {
                         continue;
                     }
                     if (line in tableCachedItem)
                     {
+                        console.log(line+" in cache!");
                         const item_prop = tableCachedItem[line];
                         const item_prop_arr = item_prop.split('&'); 
                         const name = item_prop_arr[0];
@@ -298,6 +309,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     }
                     else
                     {
+                        console.log("line '"+line+"' not in cache, line.length="+line.length);
                         items_list_ta.value = items_list_ta.value  + "???" + line+ "\n";
                         actual_lines_len = actual_lines_len+1;
                         flag_is_all_items_good = false;
@@ -306,7 +318,20 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 items_list_ta.rows = actual_lines_len+1;
                 if (flag_is_all_items_good)
                 {
-                    sendData(arr_items);
+                    if (flag_is_store)
+                    {
+                        const item_str = document.getElementById("qrItemName").value;
+                        console.log("Saving Recipe: "+item_str)
+                        sendData(arr_items, item_str);
+                    }
+                    else
+                    {
+                        sendData(arr_items);
+                    }
+                }
+                else
+                {
+                   document.getElementById("buttonInsertRecipt").setAttribute("disabled",""); 
                 }
             }
             
@@ -317,11 +342,16 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 {
                     flag_is_update_db = 1;
                 }
-                const arr_items2 = arr_items;
-//                [
-//                    {"name":"item1", "numDesiredQuantity":"39", "itemUID":11},
-//                    {"name":"item2", "numDesiredQuantity":"45", "itemUID":22},
-//                ];
+                let arr_items2 = arr_items;
+                if (arguments.length === 0)
+                {
+                    arr_items2 = [
+                        {"name":"דלעת מבושלת", "numDesiredQuantity":"40", "itemUID":144},
+                        {"name":"בצל", "numDesiredQuantity":"0", "itemUID":1},
+                    ];
+                    flag_is_update_db = 1;
+                    name_of_recipe = "מתכון";
+                }
                 const blob = new Blob([JSON.stringify(arr_items2)], { type: "application/json" });
 
                 console.log("sending data");
@@ -345,29 +375,92 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
 
             }
             
+            function removeItemFromList(itemIndex,strTxt)
+            {
+                //console.log("remove "+itemIndex);
+                retValue = confirm("האם אתה בטוח שתרצה להסיר את המוצר הבא?\n"+strTxt);
+                if (retValue == true) // Remove
+                {
+                    var xmlhttp = new XMLHttpRequest();
+                    xmlhttp.onreadystatechange = function () {
+                        //console.log(this.readyState); //
+                        //console.log(this.status); //
+                        if (this.readyState == 4 && this.status == 200) {
+                            // console.log(this.responseText);
+                            //console.log('updating table');
+                            // console.log('delete');
+                            document.getElementById('nutDataDiv').innerHTML = "";
+                        }
+                    };
+                    xmlhttp.open("GET", "removeItemFromList.php?itemIndex=" + itemIndex, true);
+
+                    xmlhttp.send();
+                }
+            }
+
+            
             function updateQRList(e)
             {
-//                console.log("in updateQRList");
+                console.log("in updateQRList");
                 const textval = e.target.value;
-                //console.log("textval="+textval[textval.length-1]);
+                const selectionStart = e.target.selectionStart;
+//                console.log("selectionStart="+selectionStart);
+//                console.log("textval.length="+textval.length);
                 if (textval[textval.length-1] === '\n')
                 {
                     //console.log("Enter pressed!");
-                    generateListOfItemsWithProp(e.target.value);
+                    generateListOfItemsWithProp();
                 }
                 lines = textval.split("\n");
-                for (let i = 0; i < lines.length; i++) {
-                    //console.log(lines[i]);
+                let current_line_ind = lines.length-1;
+                if (selectionStart == textval.length)
+                {
+//                  // console.log("User cursor is at end of the line");
                 }
-                searchItem(lines[lines.length-1]);
-        //        console.log(textval);
-        //        document.getElementById("mytxt1").text = textval;
+                else
+                {
+//                    console.log("User cursor is not at end of the line");
+                    let running_ind = 0;
+                    for (let i = 0; i < lines.length; i++) {
+                        let prev_running_ind = running_ind;
+                        running_ind = running_ind + lines[i].length;
+//                        console.log("i="+i+", prev_running_ind="+prev_running_ind+", running_ind="+running_ind);
+                        if ((selectionStart >= prev_running_ind) && (selectionStart <= running_ind))
+                        {
+                            current_line_ind = i;
+                        }
+                    }
+                }
+//                    console.log("current_line_ind="+current_line_ind);
+                const line = lines[current_line_ind].trim();
+                searchItem(line);                                    
+            }
+            
+            function updateQRListUponPaste(e)
+            {
+//                console.log("Copy&Paste");                
+                const textval = event.clipboardData.getData('text'); //e.target.value;//.substring(0,selectionEnd);
+//                console.log("textval="+textval);
+                lines = textval.split("\n");
+                for (let i = 0; i < lines.length; i++) {
+                        line = lines[i].trim();
+//                        console.log("line= "+line);
+//                        console.log("line.length= "+line.length);
+//                        console.log("searchItem number "+i);
+                        searchItem(line);
+                    }                    
+            }
+            
+            function insertRecite()
+            {
+                generateListOfItemsWithProp(true);
             }
             
             function search_recipe_name()
             {
                 const item_str = document.getElementById("qrItemName").value; //$('#qrItemName').value;
 //                console.log("item_str="+item_str);
+                document.getElementById("buttonInsertRecipt").setAttribute("disabled","");
                 if (item_str.trim() == "") {
                     $('#srchRecPopover').innerHTML = '';
                     $('#srchRecPopover').hide();
@@ -419,10 +512,6 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                 if (text.length == 0) // No match found
                                 {
                                     document.getElementById("buttonInsertRecipt").removeAttribute("disabled");
-                                }
-                                else
-                                {
-                                    document.getElementById("buttonInsertRecipt").setAttribute("disabled","");
                                 }
                             }
                         };

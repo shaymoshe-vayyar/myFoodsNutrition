@@ -51,6 +51,10 @@ foreach ($arr_total_nut_value as $nutrition_name => $prop_value)
     $arr_total_nut_value_per_100[$nutrition_name] = $prop_value/$total_q*100;
 }
 
+function get_column_name_sql_str($name) {
+    return $name.", ";
+}
+
 // Save to DB if asked
 if ($flag_is_update_db)
 {
@@ -58,30 +62,47 @@ if ($flag_is_update_db)
     $str_column_values = "";
     // itemUID is auto gen -> no need to pass
     // itemName
-    $str_column_names += "'itemName'";
-    $str_column_values += "'{$name_of_recipe}', ";
+    $str_column_names = $str_column_names.get_column_name_sql_str("itemName");
+    $str_column_values = $str_column_values."'{$name_of_recipe}', ";
+    // additionalNames
+    $str_column_names = $str_column_names.get_column_name_sql_str("additionalNames");
+    $str_column_values = $str_column_values."'', ";
     // categoryType
-    $str_column_names += "'categoryType'";
-    $str_column_values += "'general', ";
+    $str_column_names = $str_column_names.get_column_name_sql_str("categoryType");
+    $str_column_values = $str_column_values."'general', ";
     // isExtended
-    $str_column_names += "'isExtended'";
-    $str_column_values += "'1', ";
-    
-    foreach ($arr_total_nut_value as $nutrition_name => $prop_value)
+    $str_column_names = $str_column_names.get_column_name_sql_str("isExtended");
+    $str_column_values = $str_column_values."'1', ";
+    // itemsCombination
+    $str_column_names = $str_column_names.get_column_name_sql_str("itemsCombination");
+    $str_column_values = $str_column_values."'".$str_arr_data."', ";
+
+    foreach ($arr_total_nut_value_per_100 as $nutrition_name => $prop_value)
     {
-        $str_column_names = $str_column_names."'_{$nutrition_name}', ";
+        $str_column_names = $str_column_names.get_column_name_sql_str("_{$nutrition_name}");
         $str_column_values = $str_column_values."'{$prop_value}', ";
     }
     // Remove last ', '
     $str_column_names = substr($str_column_names, 0, -2);
     $str_column_values = substr($str_column_values, 0, -2);
 
-    echo $str_column_names."\n";
-    echo $str_column_values;
+//    echo $str_column_names."\n";
+//    echo $str_column_values;
     //$sql_str = "INSERT INTO table_daily_items (`itmDate`, `itemName`, `quantity`, `mealTimeSlot`, `itmTime`) VALUES ('".$date."', '".$itemName."', ".$quantity.", '".$mealTimeSlot."', '".$time."');";
     $sql_str = "INSERT INTO table_items_data ({$str_column_names}) VALUES ({$str_column_values});";
-//    printf("SQL query = %s\n",$sql);
-//    $result = mysqli_query($con, $sql);
+//    echo $sql_str."\n";
+    $result = mysqli_query($con, $sql_str);
+//    echo "\n\n";
+    $sql_str = "SELECT LAST_INSERT_ID();";
+    $result = mysqli_query($con, $sql_str);
+    $row = mysqli_fetch_array($result);
+//    echo $row[0]."\n";
+    
+    $strText1 = "'{$name_of_recipe}'";
+    echo '<div class="w3-row" style="background-color: grey;" >
+        <i class="fa fa-times w3-large w3-cell w3-left" style="padding: 5px" onclick="removeItemFromList('.$row[0].','.$strText1.')"></i>
+        <p class="w3-cell w3-large w3-right">'.$name_of_recipe.' </p> 
+        </div>';
 }
 
 
