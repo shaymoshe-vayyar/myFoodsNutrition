@@ -31,6 +31,10 @@ foreach ($arr_data as $item_data)
     foreach ($row as $item_prop_name => $prop_value)
     {
         $prop_value_float = floatval($prop_value);
+        if ($prop_value_float < 0) // Zero negative values which indicates value does not exist
+        {
+            $prop_value_float = 0;
+        }
         if (str_starts_with($item_prop_name,'_')) {
             $nutrition_name = substr($item_prop_name, 1);
             if (key_exists($nutrition_name,$arr_total_nut_value))
@@ -41,7 +45,7 @@ foreach ($arr_data as $item_data)
             {
                 $arr_total_nut_value[$nutrition_name] = $prop_value_float * $numDesiredQuantity / 100;
             }
-        }
+        }        
     }
 }
 

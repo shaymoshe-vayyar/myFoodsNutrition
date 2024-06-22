@@ -523,7 +523,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                         };
                         //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
                         //console.log("findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr)
-                        xmlhttp.open("GET", "findItemDB.php?q=" + item_str + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr, true);
+                        xmlhttp.open("GET", "findItemDB.php?q=" + item_str + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
+                                "&numbersInStr="+numbersInStr, true);
 
                         xmlhttp.send();
                     }
