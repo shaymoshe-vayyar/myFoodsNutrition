@@ -346,8 +346,9 @@ function updateQRSuggestions() {
               }
           };
             //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
-            console.log("findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0"+"&isStarCharInStr="+isStarCharInStr)
-            xmlhttp.open("GET","findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0"+"&isStarCharInStr="+isStarCharInStr,true);
+            //console.log("findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0"+"&isStarCharInStr="+isStarCharInStr+ "&numDesiredQuantity=" + numDesiredQuantity)
+            xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
+                    "&numbersInStr="+numbersInStr, true);
 
           xmlhttp.send();
         }

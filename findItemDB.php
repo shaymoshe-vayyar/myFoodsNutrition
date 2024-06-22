@@ -9,6 +9,11 @@ $isFull = $_GET['isFull'];
 
 $isStarCharInStr = $_GET['isStarCharInStr'];
 
+$numDesiredQuantity = $_GET['numDesiredQuantity'];
+
+$numbersInStr = $_GET['numbersInStr'];
+
+
 include 'globals.php';
 //$con = mysqli_connect($_SESSION['host'],$_SESSION['username'],$_SESSION['password']);
 if (!$con) {
@@ -44,7 +49,7 @@ else {
     $result = mysqli_query($con, $sql);
 
     while ($row = mysqli_fetch_array($result)) {
-        echo $row[0] . ',' . $row[1] . "," . $row[2] . ';';
+        echo $row[0] . ',' . $row[1] . "," . $row[2] . "," . $numDesiredQuantity . "," . $numbersInStr . "," . $q .';';
     }
 
 }

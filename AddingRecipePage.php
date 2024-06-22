@@ -131,9 +131,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                         } else
                         {
                             numDesiredQuantity = parseFloat(numbersInStr[0]);
-                            // console.log('------------------------------');
-                            // console.log(numDesiredQuantity); //
-                            // console.log('------------------------------');
+                            //console.log('------------------------------');
+                            //console.log(numDesiredQuantity); //
+                            //console.log('------------------------------');
                         }
                     }
                     if ((hebWordsInStr != null) && (hebWordsInStr.length > 0) && (hebWordsInStr[0].length > 0))
@@ -166,8 +166,11 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                         {
                                             arrPair = arrOptions[i].split(','); // Name, Calories, itemUID
                                             const name = arrPair[0];
-                                            const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
                                             const itemUID = arrPair[2];
+                                            const numDesiredQuantity = arrPair[3];
+                                            const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
+                                            const numbersInStr = arrPair[4];
+                                            const hebWordsInStrJoined = arrPair[5];
                                             //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
                                             text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
                                             if ((numbersInStr != null) && (numbersInStr.length > 0)) // Only one suggestion
@@ -178,7 +181,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                                     flag_is_submit = true;
                                                 } else
                                                 {
-                                                    if (name.trim() == hebWordsInStr.join(' ').trim())
+                                                    if (name.trim() == hebWordsInStrJoined.trim())
                                                     {
                                                         flag_is_submit = true;
                                                     }
@@ -187,7 +190,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                                         const words_in_name = name.split(' ');
                                                         for (let ii=0;ii<words_in_name.length;ii++)
                                                         {
-                                                          if (words_in_name[ii].trim() == hebWordsInStr.join(' ').trim())
+                                                          if (words_in_name[ii].trim() == hebWordsInStrJoined.trim())
                                                           {
                                                              flag_is_submit = true; 
                                                           }
@@ -197,11 +200,12 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                                 if (flag_is_submit)
                                                 {
                                                     //console.log("data="+$('#qr').data('selItem'));
-                                                    console.log("Match");
+//                                                    console.log("Match");
                                                     $('#qr').data('selItem', name);
                                                     $('#qr').data('quantity', numDesiredQuantity);
+                                                    //console.log("Inserting: item_str="+item_str+", name="+name+", numDesiredQuantity="+numDesiredQuantity);
                                                     addItemToCache(item_str,name,numDesiredQuantity,itemUID);
-                                                    printTable();
+                                                    //printTable();
                                                     if (retAtTheEnd)
                                                     {
                                                         qrSearchSubmitted();
@@ -230,7 +234,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                         };
                         //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
                         //console.log("findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr)
-                        xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr, true);
+                        xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
+                                "&numbersInStr="+numbersInStr, true);
 
                         xmlhttp.send();
                     } else
@@ -255,9 +260,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     const item_prop = tableCachedItem[item_str_qr];
                     const item_prop_arr = item_prop.split('&'); 
                     const name = item_prop_arr[0];
-                    const caloriesActual = parseFloat(item_prop_arr[1])*numDesiredQuantity/100;
+                    const desiredQuantity = parseFloat(item_prop_arr[1]);
                     const itemUID = item_prop_arr[2];
-                    console.log("item_str_qr="+item_str_qr+", name="+name+", caloriesActual="+caloriesActual+", itemUID="+itemUID);
+                    console.log("item_str_qr="+item_str_qr+", name="+name+", desiredQuantity="+desiredQuantity+", itemUID="+itemUID);
                 }
             }
             function docLoaded()
@@ -291,7 +296,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     }
                     if (line in tableCachedItem)
                     {
-                        console.log(line+" in cache!");
+//                        console.log(line+" in cache!");
                         const item_prop = tableCachedItem[line];
                         const item_prop_arr = item_prop.split('&'); 
                         const name = item_prop_arr[0];
@@ -309,7 +314,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     }
                     else
                     {
-                        console.log("line '"+line+"' not in cache, line.length="+line.length);
+//                        console.log("line '"+line+"' not in cache, line.length="+line.length);
                         items_list_ta.value = items_list_ta.value  + "???" + line+ "\n";
                         actual_lines_len = actual_lines_len+1;
                         flag_is_all_items_good = false;
@@ -321,7 +326,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     if (flag_is_store)
                     {
                         const item_str = document.getElementById("qrItemName").value;
-                        console.log("Saving Recipe: "+item_str)
+//                        console.log("Saving Recipe: "+item_str)
                         sendData(arr_items, item_str);
                     }
                     else
@@ -354,7 +359,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 }
                 const blob = new Blob([JSON.stringify(arr_items2)], { type: "application/json" });
 
-                console.log("sending data");
+//                console.log("sending data");
 
                 const xmlhttp = new XMLHttpRequest();
                 xmlhttp.onreadystatechange = function () {
@@ -381,7 +386,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 retValue = confirm("האם אתה בטוח שתרצה להסיר את המוצר הבא?\n"+strTxt);
                 if (retValue == true) // Remove
                 {
-                    var xmlhttp = new XMLHttpRequest();
+                    const xmlhttp = new XMLHttpRequest();
                     xmlhttp.onreadystatechange = function () {
                         //console.log(this.readyState); //
                         //console.log(this.status); //
@@ -401,7 +406,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
             
             function updateQRList(e)
             {
-                console.log("in updateQRList");
+//                console.log("in updateQRList");
                 const textval = e.target.value;
                 const selectionStart = e.target.selectionStart;
 //                console.log("selectionStart="+selectionStart);
@@ -444,9 +449,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                 lines = textval.split("\n");
                 for (let i = 0; i < lines.length; i++) {
                         line = lines[i].trim();
-//                        console.log("line= "+line);
-//                        console.log("line.length= "+line.length);
-//                        console.log("searchItem number "+i);
+                        //console.log("line= "+line);
+                        //console.log("line.length= "+line.length);
+                        //console.log("searchItem number "+i);
                         searchItem(line);
                     }                    
             }
@@ -483,6 +488,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                             //console.log(this.readyState); //
                             //console.log(this.status); //
                             if (this.readyState == 4 && this.status == 200) {
+                                //console.log("************************************");
                                 //console.log(this.responseText);
                                 text = '';
                                 if (this.responseText.length > 1)
