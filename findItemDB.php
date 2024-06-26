@@ -49,7 +49,7 @@ else {
     $result = mysqli_query($con, $sql);
 
     while ($row = mysqli_fetch_array($result)) {
-        echo $row[0] . ',' . $row[1] . "," . $row[2] . "," . $numDesiredQuantity . "," . $numbersInStr . "," . $q .';';
+        echo $row[0] . ',' . $row[1] . "," . $row[2] . "," . $numDesiredQuantity . "," . $numbersInStr . "," . $q . "," .$isStarCharInStr .';';
     }
 
 }

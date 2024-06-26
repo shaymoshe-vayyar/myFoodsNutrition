@@ -294,6 +294,8 @@ function updateQRSuggestions() {
                               const name = arrPair[0];
                               const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
                               const itemUID = arrPair[2];
+                              const isStarCharInStrSent = arrPair[6];
+
                                //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
                               text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
                               if ((numbersInStr != null) && (numbersInStr.length>0)) // Only one suggestion
@@ -339,6 +341,13 @@ function updateQRSuggestions() {
                   else
                   {
                       $('#qrpopover').hide();
+                      if (!isStarCharInStrSent) // if no result found, recheck extended
+                      {
+                        xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + true + "&numDesiredQuantity=" + numDesiredQuantity +
+                                "&numbersInStr="+numbersInStr, true);
+
+                          xmlhttp.send();                      
+                      }
                   }
                   // console.log(text);
                   //document.getElementById("ListName").innerHTML = text;
