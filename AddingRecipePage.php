@@ -138,6 +138,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     }
                     if ((hebWordsInStr != null) && (hebWordsInStr.length > 0) && (hebWordsInStr[0].length > 0))
                     {
+                        if (hebWordsInStr.includes('גרם'))
+                        {
+                            hebWordsInStr = hebWordsInStr.filter(x => x!== 'גרם');
+                        }
                         retAtTheEnd = false;
                         if (hebWordsInStr.join(' ').includes('מחק שורה'))
                         {
@@ -158,6 +162,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                 if (this.responseText.length > 1)
                                 {
                                     arrOptions = this.responseText.split(';');
+                                    if (arrOptions[0].split(',').length > 6) {
                                     const units = 'גרם';
                                     const caloriesUnit = 'קלוריות';
                                     const toWord = 'ל';
@@ -216,15 +221,20 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                                     }
                                     $('#qrpopover').show();
                                 } else
-                                {
-                                    if (flag_is_extended)
                                     {
-                                        $('#qrpopover').hide();
-                                    }
-                                    else
-                                    {
-                                        searchItem(item_str,true);
-                                        return;
+                                        arrPair = arrOptions[0].split(','); 
+                                        isStarCharInStrSent = arrPair[3];
+
+//                                        console.log("here+isStarCharInStrSent="+isStarCharInStrSent);
+                                        if (isStarCharInStrSent==="false") // if no result found, recheck extended
+                                        {
+                                            searchItem(item_str,true);
+                                            return;
+                                        }
+                                        else
+                                        {
+                                            $('#qrpopover').hide();
+                                        }
                                     }
                                 }
                                 // console.log(text);
@@ -489,31 +499,37 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                             //console.log(this.status); //
                             if (this.readyState == 4 && this.status == 200) {
                                 //console.log("************************************");
-                                //console.log(this.responseText);
+//                                console.log(this.responseText);
                                 text = '';
                                 if (this.responseText.length > 1)
                                 {
                                     arrOptions = this.responseText.split(';');
-                                    const units = 'גרם';
-                                    const caloriesUnit = 'קלוריות';
-                                    const toWord = 'ל';
-                                    for (let i = 0; i < arrOptions.length; i++) {
-                                        if (arrOptions[i].length > 0)
-                                        {
-                                            arrPair = arrOptions[i].split(','); // Name, Calories, itemUID
-                                            const name = arrPair[0];
-                                            const caloriesActual = parseFloat(arrPair[1]);
-                                            const itemUID = arrPair[2];
-                                            text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} 100 ${units}]</ul>`; // 100 gram is default
-                                            
+                                    if (arrOptions[0].split(',').length > 6)
+                                    {
+//                                        console.log("len>6");
+                                        const units = 'גרם';
+                                        const caloriesUnit = 'קלוריות';
+                                        const toWord = 'ל';
+                                        for (let i = 0; i < arrOptions.length; i++) {
+                                            if (arrOptions[i].length > 0)
+                                            {
+                                                arrPair = arrOptions[i].split(','); // Name, Calories, itemUID
+                                                const name = arrPair[0];
+                                                const caloriesActual = parseFloat(arrPair[1]);
+                                                const itemUID = arrPair[2];
+                                                text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} 100 ${units}]</ul>`; // 100 gram is default
+
+                                            }
                                         }
+                                        $('#srchRecPopover').show();
                                     }
-                                    $('#srchRecPopover').show();
-                                } else
-                                {
-                                    $('#srchRecPopover').hide();
-                                }
-                                // console.log(text);
+                                    else
+                                    {
+//                                        console.log("len<6");
+                                        $('#srchRecPopover').hide();
+                                    }
+                                } 
+//                                console.log(text);
                                 document.getElementById("srchRecPopover").innerHTML = text;
                                 if (text.length == 0) // No match found
                                 {

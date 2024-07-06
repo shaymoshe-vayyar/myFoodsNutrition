@@ -47,11 +47,16 @@ else {
         $sql = "SELECT itemName,_energy, itemUID FROM `table_items_data` WHERE itemName REGEXP '\\\\b{$q}' AND isExtended=0;";        
     }
     $result = mysqli_query($con, $sql);
-
+    $flag_is_found = false;
     while ($row = mysqli_fetch_array($result)) {
         echo $row[0] . ',' . $row[1] . "," . $row[2] . "," . $numDesiredQuantity . "," . $numbersInStr . "," . $q . "," .$isStarCharInStr .';';
+        $flag_is_found = true;
     }
-
+    
+    if ($flag_is_found == false)
+    {
+        echo $numDesiredQuantity . "," . $numbersInStr . "," . $q . "," .$isStarCharInStr .';';
+    }
 }
 
 //mysqli_close($con);
