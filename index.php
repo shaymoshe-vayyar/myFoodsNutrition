@@ -212,8 +212,96 @@
                 $('#qrpopover').hide();
             }
 
-
             function updateQRSuggestions() {
+                // Get the value of the selected drop down
+                let dropDownText = document.getElementById("qr").value;
+                if (dropDownText.includes('מחק שורה'))
+                {
+                    clearQR();
+                    return;
+                }
+
+//                xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
+//                        "&numbersInStr=" + numbersInStr, true);
+                $.ajax({
+                        url: 'findItemDB.php',
+                        type: 'POST',
+                        data: {
+                                query: dropDownText
+                              },
+                        success: function(response) {
+                                //$('#result').html(response);
+                                //console.log(response);
+                                //console.log(response.search('{'));
+                                //json_str = response.substring(response.search('{'));
+                                //console.log(json_str);
+                                const obj = JSON.parse(response);
+                                //console.log(obj);
+                                //console.log("n_items_found="+obj.n_items_found);
+
+                                if (obj.items.length === 0) // no item found
+                                {
+                                    document.getElementById("qrpopover").innerHTML = '';
+                                    $('#qrpopover').hide();
+                                    $('#qr').data('selItem', '');
+                                    $('#qr').data('quantity', 0);
+                                }
+                                else
+                                {
+                                     // show result(s)
+                                    let text = '';
+                                    const units = 'גרם';
+                                    const caloriesUnit = 'קלוריות';
+                                    const toWord = 'ל';
+                                    if (obj.number_in_result === 0)
+                                    {
+                                        numDesiredQuantity = 100; // show results for 100 gram
+                                    }
+                                    else
+                                    {
+                                        numDesiredQuantity = obj.required_quantity;
+                                    }
+                                    let ind_perfect_match = -1; // index of perfect match between query and result if exists
+                                    for (let i = 0; i < obj.items.length; i++) {
+                                        const cur_item = obj.items[i];
+
+                                        const caloriesActual = cur_item['_energy'] * numDesiredQuantity / 100;
+
+                                        text += `<ul> ${cur_item['itemName']} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
+                                        
+                                        if (cur_item['itemName'].trim() === obj.query_txt_only)
+                                        {
+                                            ind_perfect_match = i;
+                                        }                                            
+                                    }
+                                    document.getElementById("qrpopover").innerHTML = text;
+                                    $('#qrpopover').show();
+                                    
+                                    // one selection
+                                    if ((obj.items.length === 1) && (obj.number_in_result === 1))
+                                    {
+                                        $('#qr').data('selItem', obj.items[0]['itemName']);
+                                        $('#qr').data('quantity', numDesiredQuantity);
+                                    }
+                                    else
+                                    {
+                                        if ((ind_perfect_match >= 0) && (obj.number_in_result === 1))
+                                        {
+                                            $('#qr').data('selItem', obj.items[ind_perfect_match]['itemName']);
+                                            $('#qr').data('quantity', numDesiredQuantity);                                            
+                                        }
+                                        else
+                                        {
+                                            $('#qr').data('selItem', '');
+                                            $('#qr').data('quantity', 0);                                        
+                                        }
+                                    }
+                                }
+                            }
+                        });                                
+            }
+
+            function updateQRSuggestionsOld() {
                 //console.log('hello')
                 //alert('hello')
                 // Get the value of the selected drop down

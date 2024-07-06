@@ -96,167 +96,74 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
             <div id="nutDataDiv"></div>
         </div>
         <script>
-            function searchItem(item_str, flag_is_extended = false)
+            function searchItem(item_str)
             {
-                //console.log('-----------------')
-                //console.log(item_str);
-                //console.log('-----------------')
-                
-                if (item_str.trim() == "") {
-                    document.getElementById("qrpopover").innerHTML = '';
-                    $('#qrpopover').hide();
-                    return;
-                } else {
-                    if (flag_is_extended == false)
-                    {
-                        indexOfStarCharInStr = item_str.indexOf("*");
-                        isStarCharInStr = (indexOfStarCharInStr >= 0);
-                        if (isStarCharInStr){ // remove the '*' for the rest of the search
-                            item_str = item_str.substring(0,indexOfStarCharInStr) + item_str.slice(indexOfStarCharInStr+1);
-                        }
-                    }
-                    else
-                    {
-                        isStarCharInStr = true;
-                    }
-                    numbersInStr = item_str.match(/\b(\d+\.?\d?)\b/g);
-                    engWordsInStr = item_str.match(/\b[^\d\W]+\b/g);
-                    hebWordsInStr = item_str.match(/[\u0590-\u05FF]+/g);
 
-                    numDesiredQuantity = 100;
-                    if ((numbersInStr != null) && (numbersInStr.length > 0)) {
-                        if (numbersInStr.length > 1)
-                        {
-                            console.error('too many numbers');
-                        } else
-                        {
-                            numDesiredQuantity = parseFloat(numbersInStr[0]);
-                            //console.log('------------------------------');
-                            //console.log(numDesiredQuantity); //
-                            //console.log('------------------------------');
-                        }
-                    }
-                    if ((hebWordsInStr != null) && (hebWordsInStr.length > 0) && (hebWordsInStr[0].length > 0))
-                    {
-                        if (hebWordsInStr.includes('גרם'))
-                        {
-                            hebWordsInStr = hebWordsInStr.filter(x => x!== 'גרם');
-                        }
-                        retAtTheEnd = false;
-                        if (hebWordsInStr.join(' ').includes('מחק שורה'))
-                        {
-                            // console.log(hebWordsInStr.join(' ').includes('מחק שורה'));
-                            clearQR(); 
-                            return;
-                        }
-                         //const mypopover = document.getElementById("qrpopover");
-
-                        //mypopover.style.top = '100px';
-                        const xmlhttp = new XMLHttpRequest();
-                        xmlhttp.onreadystatechange = function () {
-                            //console.log(this.readyState); //
-                            //console.log(this.status); //
-                            if (this.readyState == 4 && this.status == 200) {
-                                //console.log(this.responseText);
-                                text = '';
-                                if (this.responseText.length > 1)
+                $.ajax({
+                        url: 'findItemDB.php',
+                        type: 'POST',
+                        data: {
+                                query: item_str
+                              },
+                        success: function(response) 
+                            {
+                                console.log(response);
+                                const obj = JSON.parse(response);
+                                //console.log(obj);
+                                if (obj.items.length === 0) // no item found
                                 {
-                                    arrOptions = this.responseText.split(';');
-                                    if (arrOptions[0].split(',').length > 6) {
+                                    document.getElementById("qrpopover").innerHTML = '';
+                                    $('#qrpopover').hide();
+                                }
+                                else
+                                {
+                                     // show result(s)
+                                    let text = '';
                                     const units = 'גרם';
                                     const caloriesUnit = 'קלוריות';
                                     const toWord = 'ל';
-                                    for (let i = 0; i < arrOptions.length; i++) {
-                                        if (arrOptions[i].length > 0)
-                                        {
-                                            arrPair = arrOptions[i].split(','); // Name, Calories, itemUID
-                                            const name = arrPair[0];
-                                            const itemUID = arrPair[2];
-                                            const numDesiredQuantity = arrPair[3];
-                                            const caloriesActual = parseFloat(arrPair[1])*numDesiredQuantity/100;
-                                            const numbersInStr = arrPair[4];
-                                            const hebWordsInStrJoined = arrPair[5];
-                                            //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
-                                            text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
-                                            if ((numbersInStr != null) && (numbersInStr.length > 0)) // Only one suggestion
-                                            {
-                                                flag_is_submit = false;
-                                                if (arrOptions.length == 2)
-                                                {
-                                                    flag_is_submit = true;
-                                                } else
-                                                {
-                                                    if (name.trim() == hebWordsInStrJoined.trim())
-                                                    {
-                                                        flag_is_submit = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        const words_in_name = name.split(' ');
-                                                        for (let ii=0;ii<words_in_name.length;ii++)
-                                                        {
-                                                          if (words_in_name[ii].trim() == hebWordsInStrJoined.trim())
-                                                          {
-                                                             flag_is_submit = true; 
-                                                          }
-                                                        }
-                                                    }
-                                                }
-                                                if (flag_is_submit)
-                                                {
-                                                    //console.log("data="+$('#qr').data('selItem'));
-//                                                    console.log("Match");
-                                                    $('#qr').data('selItem', name);
-                                                    $('#qr').data('quantity', numDesiredQuantity);
-                                                    //console.log("Inserting: item_str="+item_str+", name="+name+", numDesiredQuantity="+numDesiredQuantity);
-                                                    addItemToCache(item_str,name,numDesiredQuantity,itemUID);
-                                                    //printTable();
-                                                    if (retAtTheEnd)
-                                                    {
-                                                        qrSearchSubmitted();
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    $('#qrpopover').show();
-                                } else
+                                    if (obj.number_in_result === 0)
                                     {
-                                        arrPair = arrOptions[0].split(','); 
-                                        isStarCharInStrSent = arrPair[3];
+                                        numDesiredQuantity = 100; // show results for 100 gram
+                                    }
+                                    else
+                                    {
+                                        numDesiredQuantity = obj.required_quantity;
+                                    }
+                                    let ind_perfect_match = -1; // index of perfect match between query and result if exists
+                                    for (let i = 0; i < obj.items.length; i++) {
+                                        const cur_item = obj.items[i];
 
-//                                        console.log("here+isStarCharInStrSent="+isStarCharInStrSent);
-                                        if (isStarCharInStrSent==="false") // if no result found, recheck extended
+                                        const caloriesActual = cur_item['_energy'] * numDesiredQuantity / 100;
+
+                                        text += `<ul> ${cur_item['itemName']} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
+                                        
+                                        if (cur_item['itemName'].trim() === obj.query_txt_only)
                                         {
-                                            searchItem(item_str,true);
-                                            return;
-                                        }
-                                        else
+                                            ind_perfect_match = i;
+                                        }                                            
+                                    }
+                                    document.getElementById("qrpopover").innerHTML = text;
+                                    $('#qrpopover').show();
+                                    
+                                    // one selection
+                                    if ((obj.items.length === 1) && (obj.number_in_result === 1))
+                                    {
+                                        addItemToCache(obj.query,obj.items[0]['itemName'],numDesiredQuantity,obj.items[0]['itemUID']);                                    
+                                    }
+                                    else
+                                    {
+                                        if ((ind_perfect_match >= 0) && (obj.number_in_result === 1))
                                         {
-                                            $('#qrpopover').hide();
+                                            addItemToCache(obj.query,obj.items[ind_perfect_match]['itemName'],numDesiredQuantity,obj.items[ind_perfect_match]['itemUID']);                                    
                                         }
                                     }
                                 }
-                                // console.log(text);
-                                //document.getElementById("ListName").innerHTML = text;
-                                document.getElementById("qrpopover").innerHTML = text;
                             }
-                        };
-                        //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
-                        //console.log("findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr)
-                        xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
-                                "&numbersInStr="+numbersInStr, true);
-
-                        xmlhttp.send();
-                    } else
-                    {
-                        //clearQR();
-                        document.getElementById("qrpopover").innerHTML = '';
-                        $('#qrpopover').hide();
-
-                    }
-                }
+                        });                           
+                   
             }
+            
             const tableCachedItem = {};
             function addItemToCache(line, name, desired_quantity, item_id)
             {
@@ -438,7 +345,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     let running_ind = 0;
                     for (let i = 0; i < lines.length; i++) {
                         let prev_running_ind = running_ind;
-                        running_ind = running_ind + lines[i].length;
+                        running_ind = running_ind + lines[i].length + 1; // adding 1 to include the line break
 //                        console.log("i="+i+", prev_running_ind="+prev_running_ind+", running_ind="+running_ind);
                         if ((selectionStart >= prev_running_ind) && (selectionStart <= running_ind))
                         {
@@ -473,78 +380,61 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
             
             function search_recipe_name()
             {
-                const item_str = document.getElementById("qrItemName").value; //$('#qrItemName').value;
+                const item_str = document.getElementById("qrItemName").value; 
 //                console.log("item_str="+item_str);
-                document.getElementById("buttonInsertRecipt").setAttribute("disabled","");
-                if (item_str.trim() == "") {
-                    $('#srchRecPopover').innerHTML = '';
-                    $('#srchRecPopover').hide();
-                    return;
-                } else {
-                    isStarCharInStr = true; // always extend when searching for recipe
-                    numbersInStr = item_str.match(/\b(\d+\.?\d?)\b/g);
-//                    engWordsInStr = item_str.match(/\b[^\d\W]+\b/g);
-//                    hebWordsInStr = item_str.match(/[\u0590-\u05FF]+/g);
-
-                    numDesiredQuantity = 100;
-                    if ((numbersInStr != null) && (numbersInStr.length > 0)) {
-                        alert('Recipe name can"t contain numbers');
-                        return;
-                    }
-                    {
-                        retAtTheEnd = false;
-                        const xmlhttp = new XMLHttpRequest();
-                        xmlhttp.onreadystatechange = function () {
-                            //console.log(this.readyState); //
-                            //console.log(this.status); //
-                            if (this.readyState == 4 && this.status == 200) {
-                                //console.log("************************************");
-//                                console.log(this.responseText);
-                                text = '';
-                                if (this.responseText.length > 1)
+                $.ajax({
+                        url: 'findItemDB.php',
+                        type: 'POST',
+                        data: {
+                                query: item_str
+                              },
+                        success: function(response) {
+                                const obj = JSON.parse(response);
+                                //console.log(obj);
+                                if (obj.items.length === 0) // no item found
                                 {
-                                    arrOptions = this.responseText.split(';');
-                                    if (arrOptions[0].split(',').length > 6)
+                                    document.getElementById("srchRecPopover").innerHTML = '';
+                                    $('#srchRecPopover').hide();
+                                    if (obj.query_txt_only.length > 2) // name exists but no match
                                     {
-//                                        console.log("len>6");
-                                        const units = 'גרם';
-                                        const caloriesUnit = 'קלוריות';
-                                        const toWord = 'ל';
-                                        for (let i = 0; i < arrOptions.length; i++) {
-                                            if (arrOptions[i].length > 0)
-                                            {
-                                                arrPair = arrOptions[i].split(','); // Name, Calories, itemUID
-                                                const name = arrPair[0];
-                                                const caloriesActual = parseFloat(arrPair[1]);
-                                                const itemUID = arrPair[2];
-                                                text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} 100 ${units}]</ul>`; // 100 gram is default
-
-                                            }
-                                        }
-                                        $('#srchRecPopover').show();
+                                        document.getElementById("buttonInsertRecipt").removeAttribute("disabled");
                                     }
                                     else
                                     {
-//                                        console.log("len<6");
-                                        $('#srchRecPopover').hide();
+                                        document.getElementById("buttonInsertRecipt").setAttribute("disabled","");
                                     }
-                                } 
-//                                console.log(text);
-                                document.getElementById("srchRecPopover").innerHTML = text;
-                                if (text.length == 0) // No match found
+
+                                }
+                                else
                                 {
-                                    document.getElementById("buttonInsertRecipt").removeAttribute("disabled");
+                                    document.getElementById("buttonInsertRecipt").setAttribute("disabled","");
+                                     // show result(s)
+                                    let text = '';
+                                    const units = 'גרם';
+                                    const caloriesUnit = 'קלוריות';
+                                    const toWord = 'ל';
+                                    if (obj.number_in_result === 0)
+                                    {
+                                        numDesiredQuantity = 100; // show results for 100 gram
+                                    }
+                                    else
+                                    {
+                                        numDesiredQuantity = obj.required_quantity;
+                                    }
+                                    for (let i = 0; i < obj.items.length; i++) {
+                                        const cur_item = obj.items[i];
+
+                                        const caloriesActual = cur_item['_energy'] * numDesiredQuantity / 100;
+
+                                        text += `<ul> ${cur_item['itemName']} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
+                                    }
+                                    document.getElementById("srchRecPopover").innerHTML = text;
+                                    $('#srchRecPopover').show();
+                                    document.getElementById("buttonInsertRecipt").setAttribute("disabled","");                                    
                                 }
                             }
-                        };
-                        //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
-                        //console.log("findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr)
-                        xmlhttp.open("GET", "findItemDB.php?q=" + item_str + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
-                                "&numbersInStr="+numbersInStr, true);
+                        });                                
 
-                        xmlhttp.send();
-                    }
-                }
             }
         </script>
     </body>
