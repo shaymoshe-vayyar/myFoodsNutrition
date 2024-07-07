@@ -26,9 +26,12 @@ if (str_contains($q, '*'))
 // remove gram
 $q = str_replace('גרם', '', $q);
 
+// Finding words
+//engWordsInStr = item_str.match(/\b[^\d\W]+\b/g);
+//hebWordsInStr = item_str.match(/[\u0590-\u05FF]+/g);
 
 // find number(s) in query
-preg_match_all('/\\d+/',$q,$numbers_match_arr);
+preg_match_all('/\d+\.?\d?/',$q,$numbers_match_arr);
 //var_dump($numbers_match_arr[0]);
 if (count($numbers_match_arr[0]) > 1)
 {

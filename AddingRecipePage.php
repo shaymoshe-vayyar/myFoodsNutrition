@@ -107,7 +107,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                               },
                         success: function(response) 
                             {
-                                console.log(response);
+//                                console.log(response);
                                 const obj = JSON.parse(response);
                                 //console.log(obj);
                                 if (obj.items.length === 0) // no item found
