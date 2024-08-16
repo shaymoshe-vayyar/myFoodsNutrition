@@ -72,7 +72,7 @@ def update_table_items_data_for_nutritions(dbh : DatabaseHandler):
                    colsNamesAndTypes,
                    colDefValues)
 
-dbh = DatabaseHandler(['pc','web'])
+dbh = DatabaseHandler(['pc','web']) # ['pc','web']
 create_table_nutrition_attribute(dbh)
 # update_table_items_data_for_nutritions(dbh)
 

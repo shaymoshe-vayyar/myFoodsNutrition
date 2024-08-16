@@ -221,6 +221,8 @@
                     return;
                 }
 
+                // TODO: consider avoid calling findItemDB if response.trim() is empty
+
 //                xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
 //                        "&numbersInStr=" + numbersInStr, true);
                 $.ajax({
@@ -301,206 +303,109 @@
                         });                                
             }
 
-            function updateQRSuggestionsOld() {
-                //console.log('hello')
-                //alert('hello')
-                // Get the value of the selected drop down
-                var dropDownText = document.getElementById("qr").value;
-                // If selected text matches 'Other', display the text field.
-
-                // document.getElementById('qr').data-fullnamesuggest = '';
-                // console.log("data="+$('#qr').data('selItem'));
-                $('#qr').data('selItem', '');
-                $('#qr').data('quantity', 0);
-                if (dropDownText.trim() == "") {
-                    document.getElementById("qrpopover").innerHTML = '';
-                    $('#qrpopover').hide();
+            function qrSearchSubmitted() {
+                // if (e.key === 'Enter' || e.keyCode === 13) {
+                // TODO: get the data from the input directly and not the stored one.
+                //      move the exact match option to the findItemDb, and check it there. Then call here for findItemDB
+                let dropDownText = document.getElementById("qr").value;
+                if (dropDownText.trim() == "")
+                {
+                    // No data
                     return;
-                } else {
-                    indexOfStarCharInStr = dropDownText.indexOf("*");
-                    isStarCharInStr = (indexOfStarCharInStr >= 0);
-                    $('#qr').data('isStarCharInStr', isStarCharInStr);
-                    if (isStarCharInStr) { // remove the '*' for the rest of the search
-                        dropDownText = dropDownText.substring(0, indexOfStarCharInStr) + dropDownText.slice(indexOfStarCharInStr + 1);
-                    }
-                    numbersInStr = dropDownText.match(/\b(\d+\.?\d?)\b/g);
-                    engWordsInStr = dropDownText.match(/\b[^\d\W]+\b/g);
-                    hebWordsInStr = dropDownText.match(/[\u0590-\u05FF]+/g);
+                }
+                
+                console.log('submitted');
+                $.ajax({
+                        url: 'findItemDB.php',
+                        type: 'POST',
+                        data: {
+                                query: dropDownText
+                              },
+                        success: function(response) {
+                                const obj = JSON.parse(response);
+                                //console.log(obj);
+                                //console.log("n_items_found="+obj.n_items_found);
 
-                    numDesiredQuantity = 100;
-                    if ((numbersInStr != null) && (numbersInStr.length > 0)) {
-                        if (numbersInStr.length > 1)
-                        {
-                            console.error('too many numbers');
-                        } else
-                        {
-                            numDesiredQuantity = parseFloat(numbersInStr[0])
-                            // console.log('------------------------------');
-                            // console.log(numDesiredQuantity); //
-                            // console.log('------------------------------');
-                        }
-                    }
-                    if ((hebWordsInStr != null) && (hebWordsInStr.length > 0) && (hebWordsInStr[0].length > 0))
-                    {
-                        retAtTheEnd = false;
-                        if (hebWordsInStr.join(' ').includes('מחק שורה'))
-                        {
-                            // console.log(hebWordsInStr.join(' ').includes('מחק שורה'));
-                            clearQR();
-                            return;
-                        }
-                        if (hebWordsInStr.includes('הכנס'))
-                        {
-                            // console.log(hebWordsInStr.join(' '));
-                            hebWordsInStr = hebWordsInStr.filter(hebWordsInStr => hebWordsInStr != 'הכנס');
-                            // console.log(hebWordsInStr.join(' '));
-                            retAtTheEnd = true;
-                        }
-
-                        //const mypopover = document.getElementById("qrpopover");
-
-                        //mypopover.style.top = '100px';
-                        var xmlhttp = new XMLHttpRequest();
-                        xmlhttp.onreadystatechange = function () {
-                            //console.log(this.readyState); //
-                            //console.log(this.status); //
-                            if (this.readyState == 4 && this.status == 200) {
-//                                console.log("responseText="+this.responseText);
-                                text = '';
-                                let isStarCharInStrSent = false;
-                                if (this.responseText.length > 1)
+                                if (obj.items.length === 0) // no item found
                                 {
-                                    arrOptions = this.responseText.split(';');
-                                    if (arrOptions[0].split(',').length > 6)
+                                    return;
+                                }
+                                else
+                                {
+                                    if (obj.number_in_result === 0) // No quantity specified -> ignore
                                     {
-//                                        console.log("arrOptions... > 6");
-                                        const units = 'גרם';
-                                        const caloriesUnit = 'קלוריות';
-                                        const toWord = 'ל';
-                                        for (let i = 0; i < arrOptions.length; i++) {
-                                            if (arrOptions[i].length > 0)
-                                            {
-                                                arrPair = arrOptions[i].split(','); // Name, Calories, itemUID
-                                                const name = arrPair[0];
-                                                const caloriesActual = parseFloat(arrPair[1]) * numDesiredQuantity / 100;
-                                                const itemUID = arrPair[2];
-                                                isStarCharInStrSent = arrPair[6];
+                                        return; 
+                                    }
+                                    let numDesiredQuantity = obj.required_quantity;
+                                    let item_idx = -1; // index of perfect match between query and result if exists
+                                    for (let i = 0; i < obj.items.length; i++) {
+                                        const cur_item = obj.items[i];
 
-                                                //text += `<option> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</option>`;
-                                                text += `<ul> ${name} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
-                                                if ((numbersInStr != null) && (numbersInStr.length > 0)) // Only one suggestion
-                                                {
-                                                    flag_is_submit = false;
-                                                    if (arrOptions.length == 2)
-                                                    {
-                                                        flag_is_submit = true;
-                                                    } else
-                                                    {
-                                                        if (name.trim() == hebWordsInStr.join(' ').trim())
-                                                        {
-                                                            flag_is_submit = true;
-                                                        }
-                                                        //                                      else
-                                                        //                                      {
-                                                        //                                          const words_in_name = name.split(' ');
-                                                        //                                          for (let ii=0;ii<words_in_name.length;ii++)
-                                                        //                                          {
-                                                        //                                            if (words_in_name[ii].trim() == hebWordsInStr.join(' ').trim())
-                                                        //                                            {
-                                                        //                                               flag_is_submit = true; 
-                                                        //                                            }
-                                                        //                                          }
-                                                        //                                      }
-                                                    }
-                                                    if (flag_is_submit)
-                                                    {
-                                                        //console.log("data="+$('#qr').data('selItem'));
-                                                        $('#qr').data('selItem', name);
-                                                        $('#qr').data('quantity', numDesiredQuantity);
-                                                        if (retAtTheEnd)
-                                                        {
-                                                            qrSearchSubmitted();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                        $('#qrpopover').show();
-                                    } else
-                                    {
-                                        $('#qrpopover').hide();
-                                        arrPair = arrOptions[0].split(','); 
-                                        isStarCharInStrSent = arrPair[3];
-
-//                                        console.log("here+isStarCharInStrSent="+isStarCharInStrSent);
-                                        if (isStarCharInStrSent==="false") // if no result found, recheck extended
+//                                        const caloriesActual = cur_item['_energy'] * numDesiredQuantity / 100;
+//
+//                                        text += `<ul> ${cur_item['itemName']} [${caloriesActual} ${caloriesUnit} ${toWord} ${numDesiredQuantity} ${units}]</ul>`;
+                                        
+                                        if (cur_item['itemName'].trim() === obj.query_txt_only)
                                         {
-//                                            console.log("resending");
-                                            xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + true + "&numDesiredQuantity=" + numDesiredQuantity +
-                                                    "&numbersInStr=" + numbersInStr, true);
+                                            ind_perfect_match = i;
+                                        }                                            
+                                    }
+                                   
+                                    // one selection
+                                    let flag_update = false;
+                                    if ((obj.items.length === 1) && (obj.number_in_result === 1))
+                                    {
+                                        flag_update = true;
+                                        item_idx = 0;
+                                    }
+                                    else
+                                    {
+                                        if ((ind_perfect_match >= 0) && (obj.number_in_result === 1))
+                                        {
+                                            flag_update = true;                                           
+                                        }
+                                        else
+                                        {
+                                            return;                                        
+                                        }
+                                    }
+                                    if (flag_update)
+                                    {
+                                        itemToAdd = obj.items[item_idx]['itemName'];
+                                        //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
+                                        dateToAdd = document.getElementById("picker").value;
+                                        quantity = numDesiredQuantity;
+                                        mealTimeSlot = '';
+                                        if ((itemToAdd.length > 0) && quantity > 0)
+                                        {
+                                            var xmlhttp = new XMLHttpRequest();
+                                            xmlhttp.onreadystatechange = function () {
+                                                //console.log(this.readyState); //
+                                                //console.log(this.status); //
+                                                //console.log("responseText="+this.responseText);
+                                                if (this.readyState == 4 && this.status == 200) {
+                                                    // console.log(this.responseText);
+                                                    //console.log('updating table');
+                                                    prevCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
+                                                    $("#qr").data('prevCaloriesValue', prevCaloriesValue);
+                                                    updateTables();
+                                                    //clearQR();
+                                                    document.getElementById("qr").value = '';
+                                                    document.getElementById("qrpopover").innerHTML = '';
+                                                    $('#qr').data('selItem', '');
+                                                    $('#qr').data('quantity', 0);
+                                                    $('#qrpopover').hide();
+                                                }
+                                            };
+                                            //console.log("itemToAdd=" + itemToAdd+', dateToAdd='+dateToAdd+', quantity='+quantity+', mealTimeSlot='+mealTimeSlot);
+                                            xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
 
                                             xmlhttp.send();
                                         }
                                     }
                                 }
-
-                                // console.log(text);
-                                //document.getElementById("ListName").innerHTML = text;
-                                document.getElementById("qrpopover").innerHTML = text;
                             }
-                        };
-                        //xmlhttp.open("GET","./phpFiles/findItemDB.php?q="+hebWordsInStr.join(' '),true);
-                        //console.log("findItemDB.php?q="+hebWordsInStr.join(' ')+"&isFull=0"+"&isStarCharInStr="+isStarCharInStr+ "&numDesiredQuantity=" + numDesiredQuantity)
-                        xmlhttp.open("GET", "findItemDB.php?q=" + hebWordsInStr.join(' ') + "&isFull=0" + "&isStarCharInStr=" + isStarCharInStr + "&numDesiredQuantity=" + numDesiredQuantity +
-                                "&numbersInStr=" + numbersInStr, true);
-
-                        xmlhttp.send();
-                    } else
-                    {
-                        //clearQR();
-                        document.getElementById("qrpopover").innerHTML = '';
-                        $('#qrpopover').hide();
-                        $('#qr').data('selItem', '');
-                        $('#qr').data('quantity', 0);
-                    }
-                }
-            }
-            function qrSearchSubmitted() {
-                // if (e.key === 'Enter' || e.keyCode === 13) {
-                console.log('submitted');
-                itemToAdd = $('#qr').data('selItem');
-                //['item']; ['date']; ['quantity']; ['mealTimeSlot']; ['time'];
-                dateToAdd = document.getElementById("picker").value;
-                quantity = $('#qr').data('quantity');
-                mealTimeSlot = '';
-                if ((itemToAdd.length > 0) && quantity > 0)
-                {
-                    var xmlhttp = new XMLHttpRequest();
-                    xmlhttp.onreadystatechange = function () {
-                        //console.log(this.readyState); //
-                        //console.log(this.status); //
-                        //console.log("responseText="+this.responseText);
-                        if (this.readyState == 4 && this.status == 200) {
-                            // console.log(this.responseText);
-                            //document.getElementById('blabla').textContent = this.responseText;
-                            //console.log('updating table');
-                            prevCaloriesValue = document.getElementById('tableNutValues').getAttribute('data-totalcal');
-                            $("#qr").data('prevCaloriesValue', prevCaloriesValue);
-                            updateTables();
-                            //clearQR();
-                            document.getElementById("qr").value = '';
-                            document.getElementById("qrpopover").innerHTML = '';
-                            $('#qr').data('selItem', '');
-                            $('#qr').data('quantity', 0);
-                            $('#qrpopover').hide();
-                        }
-                    };
-                    //console.log("itemToAdd=" + itemToAdd+', dateToAdd='+dateToAdd+', quantity='+quantity+', mealTimeSlot='+mealTimeSlot);
-                    xmlhttp.open("GET", "addDailyItemDB.php?item=" + itemToAdd + "&date=" + dateToAdd + "&quantity=" + quantity + "&mealTimeSlot=" + mealTimeSlot, true);
-
-                    xmlhttp.send();
-                }
-                // }
+                        }); 
             }
 
             let textqr = document.getElementById("qr");

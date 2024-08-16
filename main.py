@@ -14,7 +14,7 @@
 import HandleItemsAndNutValuesDBs
 
 import database_handler
-dbh = database_handler.DatabaseHandler(['pc','web'])  # ['pc','web']
+dbh = database_handler.DatabaseHandler(['web'])  # ['pc','web']
 HandleItemsAndNutValuesDBs.GuiFoodData(dbh)
 # HandleItemsAndNutValuesDBs.GuiFoodDataEdit(dbh)
 
