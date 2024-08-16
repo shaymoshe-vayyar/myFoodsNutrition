@@ -347,7 +347,7 @@
                                         
                                         if (cur_item['itemName'].trim() === obj.query_txt_only)
                                         {
-                                            ind_perfect_match = i;
+                                            item_idx = i;
                                         }                                            
                                     }
                                    
@@ -360,7 +360,7 @@
                                     }
                                     else
                                     {
-                                        if ((ind_perfect_match >= 0) && (obj.number_in_result === 1))
+                                        if ((item_idx >= 0) && (obj.number_in_result === 1))
                                         {
                                             flag_update = true;                                           
                                         }
