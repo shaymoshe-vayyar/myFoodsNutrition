@@ -60,10 +60,8 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
             <br>
             <div>                                            <!-- Search Query -->
                 <input type="search" dir="rtl" name="qr" id="qr"
-                       placeholder="מה תרצו להוסיף?" value="" onsearch="qrSearchSubmitted()"
-                       aria-label="Search" autocomplete="off" style='width: 100%;' onfocusout="$('#qrpopover').hide();">
-
-                <ul popover id="qrpopover" style="position:relative; inset:unset; top:40px"></ul>
+                       placeholder="מה תרצו להוסיף?" value="" 
+                       aria-label="Search" autocomplete="off" style='width: 100%;' >
             </div>                                                              <!-- Search Query -->
         </div>
         <br>
@@ -92,6 +90,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
             let cachedItemProperties = {};
             
             async function fetchPHPData(targeturl) {
+                console.log('In Fetch PHP Data');
                 try {
                     const response = await fetch('fetchUrl.php', {
                         method: 'POST',
@@ -104,6 +103,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                     });
 
                     returned_txt = await response.text();
+//                    console.log('Done');
 //                    console.log(returned_txt);
 //                    const data = await response.json();
                     try {
@@ -141,13 +141,22 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
 
             function docLoaded()
             {
-                console.log("Loaded");
+//                 console.log("Loaded");
         //        const phpCommunicator = new PHPCommunicator('advanced_handler.php');
         //        const calcResult = await phpCommunicator.calculate(5, 3);
         //        console.log('Calculation:', calcResult);            
 //                fetchPHPData('https://www.foodsdictionary.co.il/Products/1/%D7%A4%D7%99%D7%A1%D7%98%D7%95%D7%A7%20%D7%97%D7%9C%D7%91%D7%99');
 
             }
+            
+            document.getElementById("qr").addEventListener("keyup", (e) => {
+                // console.log(`Key "${e.key}" ["${e.keyCode}"] released [event: keyup]`);
+                if (e.keyCode == 13)
+                {
+                    qrSearchSubmitted();
+                }
+            });
+            
             function qrSearchSubmitted()
             {
                 product_link = document.getElementById('qr').value;
