@@ -90,6 +90,7 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
         </div>
         <script>
             let cachedItemProperties = {};
+            
             async function fetchPHPData(targeturl) {
                 try {
                     const response = await fetch('fetchUrl.php', {
@@ -102,25 +103,37 @@ Click nbfs://nbhost/SystemFileSystem/Templates/Scripting/EmptyPHPWebPage.php to 
                         })
                     });
 
-//                console.log(await response.text());
-                    const data = await response.json();
-                    if (data['error'].length == 0) // No error
-                    {
-                        document.getElementById('myImage').src = data['image_link_str'];
-                        document.getElementById('header1').textContent = data['product_name'];
-                        document.getElementById('id_product_table').innerHTML = data['html_table'];
-//                        console.log(data['item_properties']);
-                        cachedItemProperties = data['item_properties'];
-                        element_item_name = document.getElementById('qrItemName');
-                        element_item_name.value = data['item_properties']['itemName'];
-                        const event = new Event('input');
-                        element_item_name.dispatchEvent(event);
-//                        console.log(data['html_table']);
-                    }
-                    else
-                    {
-                        document.getElementById('header1').textContent = "Not found!";
-                    }
+                    returned_txt = await response.text();
+//                    console.log(returned_txt);
+//                    const data = await response.json();
+                    try {
+                        const data = JSON.parse(returned_txt);
+                        if (data['error'].length == 0) // No error
+                        {
+                            console.log(data['log']);
+                            document.getElementById('myImage').src = data['image_link_str'];
+                            document.getElementById('header1').textContent = data['product_name'];
+                            document.getElementById('id_product_table').innerHTML = data['html_table'];
+    //                        console.log(data['item_properties']);
+                            cachedItemProperties = data['item_properties'];
+                            element_item_name = document.getElementById('qrItemName');
+                            element_item_name.value = data['item_properties']['itemName'];
+                            const event = new Event('input');
+                            element_item_name.dispatchEvent(event);
+    //                        console.log(data['html_table']);
+                        }
+                        else
+                        {
+                            console.log("Error in loading url!");
+                            console.log(data['error']);
+                            console.log(data['log']);
+                            document.getElementById('header1').textContent = "Not found!";
+                        }
+                } catch (error) {
+                        console.log('Error in parsing JSON. Received response: ');
+                        console.log(returned_txt);
+                        console.error('Parsing error:', error);
+                }
                 } catch (error) {
                     console.error('Error:', error);
                 }

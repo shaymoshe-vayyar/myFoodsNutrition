@@ -6,16 +6,21 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 
 include 'globals.php';
 
+//set_error_handler(function($errno, $errstr, $errfile, $errline) {
+//    // Convert all errors to exceptions
+//    throw new ErrorException($errstr, 0, $errno, $errfile, $errline);
+//});
+
 $encoding = 'UTF-8';
 mb_internal_encoding($encoding);
 
-//$localorigin = $_POST['localorigin'];
 $target_url = $_POST['targeturl'];
 
 $item_properties = [];
 $product_name = '';
 $image_link_str = '';
 $html_table = '';
+$log = '';
 
 try {
 // Initialize cURL
@@ -55,6 +60,9 @@ try {
             $detectedEncoding
     );
 
+//    $log = $log.$response."\n";
+//    var_dump($response);
+    
 //echo json_encode([
 //    'result' => 'Processed',
 //    'data' => $param1 . $param2
@@ -91,7 +99,7 @@ try {
     }
 
 // Find table with class 'nv-table'
-    $table = $xpath->query("//table[@class='nv-table']")[0];
+    $table = $xpath->query("//table[contains(@class,'nv-table')]")[0];
 
     $nutValueTableRows = [];
 
@@ -230,9 +238,9 @@ try {
     
     $error = '';
 } catch (Exception $e) {
-    $error = $e->getMessage();
+    $error = $e->getMessage()."\n".$e->getTraceAsString();
 } catch (ValueError $e) {
-    $error = $e->getMessage();
+    $error = $e->getMessage()."\n".$e->getTraceAsString();
 }
 
 echo json_encode([
@@ -240,7 +248,8 @@ echo json_encode([
     'product_name' => $product_name,
     'image_link_str' => $image_link_str,
     'html_table' => $html_table,
-    'error' => $error
+    'error' => $error,
+    'log' => $log
 ]);
 
 

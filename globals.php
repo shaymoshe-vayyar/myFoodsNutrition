@@ -26,6 +26,13 @@ function readDictTable($tableName, $con) {
     return $dict;
 }
 
+// Variable dump to string function for debug/logging
+function capture_var_dump($var) {
+    ob_start();
+    var_dump($var);
+    return ob_get_clean();
+}
+
 // Placeholder for conversion classes (you'll need to implement these)
 class GramConversionTable {
 
@@ -119,6 +126,9 @@ class HandleConversion {
     }
 
     public function convertNameValueToDisplay($nut_name, $nut_value) {
+        if (!isset($this->nutUnitsToDisplayDict[$nut_name])) {
+            echo $nut_name." not exists!\n";
+        }
         $newUnit = $this->nutUnitsToDisplayDict[$nut_name];
         $newValue = $this->convertUnitFromStandard($nut_value, $newUnit);
         $newValue_disp = round($newValue, 1);
