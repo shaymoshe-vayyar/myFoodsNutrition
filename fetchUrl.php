@@ -177,8 +177,8 @@ try {
             $thElements = $xpath->query('.//th', $nutData);
             foreach ($thElements as $line) {
                 if ($line->getAttribute('id') === 'sizeNameTd') {
-                    if (strpos($line->textContent, '100 גרם') === false) {
-                        throw new Exception('Error in parsing, size is not 100 grams!');
+                    if (strpos($line->textContent, '100') === false) {
+                        throw new Exception('Error in parsing, size is not 100 grams/mili-liter!');
                     }
                 }
             }
